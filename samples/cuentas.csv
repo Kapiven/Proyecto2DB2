@@ -1,0 +1,3 @@
+id,saldo,tipo,estado,fecha_apertura,limite_credito
+CUE-CSV-001,2500.5,Ahorro,Activa,2024-01-10,10000
+CUE-CSV-002,500.0,Corriente,Revisión,2025-03-14,8000

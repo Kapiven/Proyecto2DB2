@@ -1,0 +1,3 @@
+id,nombre,edad,genero,riesgo,nivel_riesgo,fecha_registro,email,telefono
+CLI-CSV-001,Ana López,31,F,0.31,Bajo,2025-02-10,ana@example.com,5555-1111
+CLI-CSV-002,Carlos Pérez,44,M,0.77,Alto,2024-11-21,carlos@example.com,5555-2222
