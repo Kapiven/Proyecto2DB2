@@ -10,29 +10,26 @@ from ..services.neo4j_service import Neo4jConnection
 
 
 class SchemaBootstrapView(APIView):
-    service = IngestionService()
-
     def post(self, request):
         Neo4jConnection.verify()
-        return Response({"detail": "Conexión verificada", "results": self.service.bootstrap_constraints()})
+        service = IngestionService()
+        return Response({"detail": "Conexión verificada", "results": service.bootstrap_constraints()})
 
 
 class CSVUploadView(APIView):
-    service = IngestionService()
-
     def post(self, request):
         serializer = CSVUploadSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         file = serializer.validated_data["file"]
-        result = self.service.import_csv(serializer.validated_data["entity_type"], file.read())
+        service = IngestionService()
+        result = service.import_csv(serializer.validated_data["entity_type"], file.read())
         return Response({"detail": "Archivo procesado correctamente", "result": result}, status=status.HTTP_201_CREATED)
 
 
 class FakeDataGenerationView(APIView):
-    service = IngestionService()
-
     def post(self, request):
         serializer = FakeDataSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        result = self.service.generate_fake_data(**serializer.validated_data)
+        service = IngestionService()
+        result = service.generate_fake_data(**serializer.validated_data)
         return Response({"detail": "Datos sintéticos generados", "result": result}, status=status.HTTP_201_CREATED)

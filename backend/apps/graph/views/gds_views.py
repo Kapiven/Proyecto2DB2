@@ -16,7 +16,8 @@ from ..services.gds_service import GDSService
 class GDSBaseView(APIView):
     """Base común para compartir la instancia del servicio."""
 
-    service = GDSService()
+    def get_service(self):
+        return GDSService()
 
     def handle_service_error(self, exc: Exception):
         """
@@ -36,7 +37,7 @@ class GDSProjectView(GDSBaseView):
 
     def post(self, request):
         try:
-            return Response(self.service.project_graph())
+            return Response(self.get_service().project_graph())
         except Exception as exc:
             return self.handle_service_error(exc)
 
@@ -46,7 +47,7 @@ class GDSExistsView(GDSBaseView):
 
     def post(self, request):
         try:
-            return Response(self.service.graph_exists())
+            return Response(self.get_service().graph_exists())
         except Exception as exc:
             return self.handle_service_error(exc)
 
@@ -56,7 +57,7 @@ class GDSDropView(GDSBaseView):
 
     def delete(self, request):
         try:
-            return Response(self.service.drop_graph())
+            return Response(self.get_service().drop_graph())
         except Exception as exc:
             return self.handle_service_error(exc)
 
@@ -66,7 +67,7 @@ class GDSPagerankView(GDSBaseView):
 
     def post(self, request):
         try:
-            return Response(self.service.page_rank())
+            return Response(self.get_service().page_rank())
         except Exception as exc:
             return self.handle_service_error(exc)
 
@@ -76,7 +77,7 @@ class GDSLouvainView(GDSBaseView):
 
     def post(self, request):
         try:
-            return Response(self.service.louvain())
+            return Response(self.get_service().louvain())
         except Exception as exc:
             return self.handle_service_error(exc)
 
@@ -86,7 +87,7 @@ class GDSSimilarityView(GDSBaseView):
 
     def post(self, request):
         try:
-            return Response(self.service.node_similarity())
+            return Response(self.get_service().node_similarity())
         except Exception as exc:
             return self.handle_service_error(exc)
 
@@ -98,7 +99,7 @@ class GDSShortestPathView(GDSBaseView):
         serializer = GDSShortestPathSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         try:
-            return Response(self.service.shortest_path(**serializer.validated_data))
+            return Response(self.get_service().shortest_path(**serializer.validated_data))
         except Exception as exc:
             return self.handle_service_error(exc)
 
@@ -115,6 +116,6 @@ class GDSExecutionView(GDSBaseView):
         serializer = GDSExecutionSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         try:
-            return Response(self.service.run(**serializer.validated_data))
+            return Response(self.get_service().run(**serializer.validated_data))
         except Exception as exc:
             return self.handle_service_error(exc)
