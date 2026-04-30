@@ -7,14 +7,12 @@ from ..services.fraud_service import FraudDetectionService
 
 
 class FraudRulesView(APIView):
-    service = FraudDetectionService()
-
     def get(self, request):
-        return Response({"rules": self.service.available_rules()})
+        service = FraudDetectionService()
+        return Response({"rules": service.available_rules()})
 
 
 class DetectFraudView(APIView):
-    service = FraudDetectionService()
-
     def post(self, request):
-        return Response({"detail": "Detección ejecutada", "summary": self.service.detect()})
+        service = FraudDetectionService()
+        return Response({"detail": "Detección ejecutada", "summary": service.detect()})

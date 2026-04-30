@@ -7,28 +7,24 @@ from ..services.analytics_service import AnalyticsService
 
 
 class DashboardView(APIView):
-    service = AnalyticsService()
-
     def get(self, request):
-        return Response(self.service.dashboard())
+        service = AnalyticsService()
+        return Response(service.dashboard())
 
 
 class AggregationView(APIView):
-    service = AnalyticsService()
-
     def get(self, request):
-        return Response(self.service.aggregations())
+        service = AnalyticsService()
+        return Response(service.aggregations())
 
 
 class DemoQueriesView(APIView):
-    service = AnalyticsService()
-
     def get(self, request):
-        return Response(self.service.demo_queries())
+        service = AnalyticsService()
+        return Response(service.demo_queries())
 
 
 class GraphSnapshotView(APIView):
-    service = AnalyticsService()
-
     def get(self, request):
-        return Response(self.service.graph_snapshot())
+        service = AnalyticsService()
+        return Response(service.graph_snapshot())
