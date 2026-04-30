@@ -14,15 +14,10 @@ class Neo4jConnection:
     @classmethod
     def get_driver(cls):
         if cls._driver is None:
-            uri = os.getenv("NEO4J_URI")
-            if not uri:
-                raise ValueError(
-                    "NEO4J_URI is not configured. Set the environment variable before starting the application."
-                )
-            username = os.getenv("NEO4J_USERNAME")
-            password = os.getenv("NEO4J_PASSWORD")
-            auth = (username, password) if username or password else None
-            cls._driver = GraphDatabase.driver(uri, auth=auth)
+            cls._driver = GraphDatabase.driver(
+                os.getenv("NEO4J_URI"),
+                auth=(os.getenv("NEO4J_USERNAME"), os.getenv("NEO4J_PASSWORD")),
+            )
         return cls._driver
 
     @classmethod
