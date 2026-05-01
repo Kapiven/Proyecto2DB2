@@ -81,6 +81,37 @@ class NodeService:
         result = self.repository.execute_write(query, {"node_id": node_id})
         return result[0] if result else None
 
+    def set_properties_bulk(self, label: str, node_ids: list[str], properties: dict[str, Any]):
+        query = f"""
+            UNWIND $node_ids AS node_id
+            MATCH (n:`{label}` {{id: node_id}})
+            SET n += $properties
+            RETURN count(n) AS updated
+        """
+        result = self.repository.execute_write(query, {"node_ids": node_ids, "properties": properties})
+        return result[0] if result else {"updated": 0}
+
+    def delete_properties_bulk(self, label: str, node_ids: list[str], property_names: list[str]):
+        remove_clause = ", ".join(f"n.`{property_name}`" for property_name in property_names)
+        query = f"""
+            UNWIND $node_ids AS node_id
+            MATCH (n:`{label}` {{id: node_id}})
+            REMOVE {remove_clause}
+            RETURN count(n) AS updated
+        """
+        result = self.repository.execute_write(query, {"node_ids": node_ids})
+        return result[0] if result else {"updated": 0}
+
+    def delete_nodes_bulk(self, label: str, node_ids: list[str]):
+        query = f"""
+            UNWIND $node_ids AS node_id
+            MATCH (n:`{label}` {{id: node_id}})
+            DETACH DELETE n
+            RETURN count(*) AS deleted
+        """
+        result = self.repository.execute_write(query, {"node_ids": node_ids})
+        return result[0] if result else {"deleted": 0}
+
     def manage_dynamic_label(self, label: str, node_id: str, dynamic_label: str, action: str):
         allowed = DYNAMIC_LABELS.get(label, [])
         if dynamic_label not in allowed:

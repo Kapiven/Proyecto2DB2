@@ -1,9 +1,10 @@
 """Módulo de conexión y acceso base a Neo4j."""
 
-import os
 from typing import Any, Callable
 
-from neo4j import GraphDatabase
+from django.conf import settings
+from neo4j import GraphDatabase, exceptions
+from rest_framework.exceptions import APIException
 
 
 class Neo4jConnection:
@@ -14,15 +15,18 @@ class Neo4jConnection:
     @classmethod
     def get_driver(cls):
         if cls._driver is None:
-            uri = os.getenv("NEO4J_URI")
+            uri = getattr(settings, "NEO4J_URI", None)
             if not uri:
                 raise ValueError(
-                    "NEO4J_URI is not configured. Set the environment variable before starting the application."
+                    "NEO4J_URI is not configured. Set NEO4J_URI in the environment or .env file."
                 )
-            username = os.getenv("NEO4J_USERNAME")
-            password = os.getenv("NEO4J_PASSWORD")
-            auth = (username, password) if username or password else None
-            cls._driver = GraphDatabase.driver(uri, auth=auth)
+            username = getattr(settings, "NEO4J_USERNAME", None)
+            password = getattr(settings, "NEO4J_PASSWORD", None)
+            if not username or not password:
+                raise ValueError(
+                    "NEO4J credentials are incomplete. Set both NEO4J_USERNAME and NEO4J_PASSWORD."
+                )
+            cls._driver = GraphDatabase.driver(uri, auth=(username, password))
         return cls._driver
 
     @classmethod
@@ -41,15 +45,35 @@ class Neo4jRepository:
 
     def __init__(self) -> None:
         self.driver = Neo4jConnection.get_driver()
-        self.database = os.getenv("NEO4J_DATABASE", "neo4j")
+        self.database = getattr(settings, "NEO4J_DATABASE", "neo4j")
 
     def execute_read(self, query: str, parameters: dict[str, Any] | None = None) -> list[dict[str, Any]]:
-        with self.driver.session(database=self.database) as session:
-            return session.execute_read(self._run_query, query, parameters or {})
+        try:
+            with self.driver.session(database=self.database) as session:
+                return session.execute_read(self._run_query, query, parameters or {})
+        except exceptions.AuthError as exc:
+            raise APIException(
+                "Neo4j authentication failed. Verify NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD and NEO4J_DATABASE in backend/.env. "
+                "If uses AuraDB, paste the current DB password from the Neo4j console."
+            ) from exc
+        except exceptions.ServiceUnavailable as exc:
+            raise APIException(
+                "Neo4j is unreachable. Check NEO4J_URI, network access, and that the database is online."
+            ) from exc
 
     def execute_write(self, query: str, parameters: dict[str, Any] | None = None) -> list[dict[str, Any]]:
-        with self.driver.session(database=self.database) as session:
-            return session.execute_write(self._run_query, query, parameters or {})
+        try:
+            with self.driver.session(database=self.database) as session:
+                return session.execute_write(self._run_query, query, parameters or {})
+        except exceptions.AuthError as exc:
+            raise APIException(
+                "Neo4j authentication failed. Verify NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD and NEO4J_DATABASE in backend/.env. "
+                "If uses AuraDB, paste the current DB password from the Neo4j console."
+            ) from exc
+        except exceptions.ServiceUnavailable as exc:
+            raise APIException(
+                "Neo4j is unreachable. Check NEO4J_URI, network access, and that the database is online."
+            ) from exc
 
     @staticmethod
     def _run_query(tx, query: str, parameters: dict[str, Any]) -> list[dict[str, Any]]:

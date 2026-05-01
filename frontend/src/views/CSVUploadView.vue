@@ -31,6 +31,7 @@
 
     <div class="section-panel">
       <h3>Resultado</h3>
+      <p class="status-text" v-if="statusMessage">{{ statusMessage }}</p>
       <pre>{{ statusMessage }}</pre>
     </div>
   </section>
@@ -39,8 +40,33 @@
 <script setup>
 import { reactive, ref } from "vue";
 import api from "../api/client";
+import { formatApiError } from "../utils/apiError";
 
-const options = ["Cliente", "Cuenta", "Tarjeta", "Transaccion", "Dispositivo", "Ubicacion", "Comercio", "Banco", "Alerta", "TIENE_CUENTA", "USA_DISPOSITIVO", "TIENE_TARJETA"];
+const options = [
+  "Cliente",
+  "Cuenta",
+  "Tarjeta",
+  "Transaccion",
+  "Dispositivo",
+  "Ubicacion",
+  "Comercio",
+  "Banco",
+  "Alerta",
+  "TIENE_CUENTA",
+  "USA_DISPOSITIVO",
+  "TIENE_TARJETA",
+  "ORIGINA",
+  "DESTINADA_A",
+  "UTILIZA_DISPOSITIVO",
+  "DESDE_UBICACION",
+  "EN_COMERCIO",
+  "UTILIZA_TARJETA",
+  "GENERA_ALERTA",
+  "PERTENECE_A",
+  "LOCALIZADO_EN",
+  "REMITE",
+  "INTERACTUA",
+];
 const entityType = ref("Cliente");
 const selectedFile = ref(null);
 const statusMessage = ref("");
@@ -55,20 +81,35 @@ function onFileChange(event) {
 }
 
 async function bootstrap() {
-  const { data } = await api.post("/schema/bootstrap/");
-  statusMessage.value = JSON.stringify(data, null, 2);
+  statusMessage.value = "";
+  try {
+    const { data } = await api.post("/schema/bootstrap/");
+    statusMessage.value = JSON.stringify(data, null, 2);
+  } catch (error) {
+    statusMessage.value = formatApiError(error);
+  }
 }
 
 async function uploadCSV() {
-  const formData = new FormData();
-  formData.append("entity_type", entityType.value);
-  formData.append("file", selectedFile.value);
-  const { data } = await api.post("/upload/csv/", formData);
-  statusMessage.value = JSON.stringify(data, null, 2);
+  statusMessage.value = "";
+  try {
+    const formData = new FormData();
+    formData.append("entity_type", entityType.value);
+    formData.append("file", selectedFile.value);
+    const { data } = await api.post("/upload/csv/", formData);
+    statusMessage.value = JSON.stringify(data, null, 2);
+  } catch (error) {
+    statusMessage.value = formatApiError(error);
+  }
 }
 
 async function generateFakeData() {
-  const { data } = await api.post("/generate/fake-data/", generator);
-  statusMessage.value = JSON.stringify(data, null, 2);
+  statusMessage.value = "";
+  try {
+    const { data } = await api.post("/generate/fake-data/", generator);
+    statusMessage.value = JSON.stringify(data, null, 2);
+  } catch (error) {
+    statusMessage.value = formatApiError(error);
+  }
 }
 </script>

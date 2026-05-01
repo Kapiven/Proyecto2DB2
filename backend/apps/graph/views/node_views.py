@@ -4,7 +4,14 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from ..serializers.graph_serializers import DynamicLabelSerializer, NodePropertySerializer, NodeSerializer
+from ..serializers.graph_serializers import (
+    BulkNodeDeleteSerializer,
+    BulkNodePropertyRemoveSerializer,
+    BulkNodePropertySerializer,
+    DynamicLabelSerializer,
+    NodePropertySerializer,
+    NodeSerializer,
+)
 from ..services.node_service import NodeService
 
 
@@ -60,6 +67,42 @@ class NodePropertyView(APIView):
         if not node:
             return Response({"detail": "Nodo no encontrado."}, status=status.HTTP_404_NOT_FOUND)
         return Response(node)
+
+
+class NodePropertyBatchView(APIView):
+    def post(self, request):
+        serializer = BulkNodePropertySerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        service = NodeService()
+        result = service.set_properties_bulk(
+            serializer.validated_data["label"],
+            serializer.validated_data["node_ids"],
+            serializer.validated_data["properties"],
+        )
+        return Response(result)
+
+    def delete(self, request):
+        serializer = BulkNodePropertyRemoveSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        service = NodeService()
+        result = service.delete_properties_bulk(
+            serializer.validated_data["label"],
+            serializer.validated_data["node_ids"],
+            serializer.validated_data["property_names"],
+        )
+        return Response(result)
+
+
+class NodeDeleteBatchView(APIView):
+    def post(self, request):
+        serializer = BulkNodeDeleteSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        service = NodeService()
+        result = service.delete_nodes_bulk(
+            serializer.validated_data["label"],
+            serializer.validated_data["node_ids"],
+        )
+        return Response(result)
 
 
 class DynamicLabelView(APIView):

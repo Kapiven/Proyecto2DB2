@@ -25,6 +25,8 @@ RELATIONSHIP_SCHEMAS = {
     "GENERA_ALERTA": ["score_riesgo", "regla_activada", "prioridad"],
     "PERTENECE_A": ["fecha_asociacion", "canal_apertura", "verificada"],
     "LOCALIZADO_EN": ["fecha", "tipo_conexion", "ip_detectada"],
+    "REMITE": ["monto_recibido", "fecha_recepcion", "comision"],
+    "INTERACTUA": ["tipo_transferencia", "codigo_swift", "costo_transferencia", "tiempo_procesamiento"],
 }
 
 DYNAMIC_LABELS = {

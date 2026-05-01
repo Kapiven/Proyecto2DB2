@@ -8,6 +8,7 @@
         </div>
         <button class="secondary-button" @click="loadGraph">Actualizar</button>
       </div>
+      <p class="status-text" v-if="statusMessage">{{ statusMessage }}</p>
       <svg viewBox="0 0 900 600" class="graph-canvas">
         <line
           v-for="edge in positionedEdges"
@@ -31,12 +32,19 @@
 <script setup>
 import { computed, onMounted, ref } from "vue";
 import api from "../api/client";
+import { formatApiError } from "../utils/apiError";
 
 const snapshot = ref({ nodes: [], relationships: [] });
+const statusMessage = ref("");
 
 async function loadGraph() {
-  const { data } = await api.get("/analytics/graph-snapshot/");
-  snapshot.value = data;
+  statusMessage.value = "";
+  try {
+    const { data } = await api.get("/analytics/graph-snapshot/");
+    snapshot.value = data;
+  } catch (error) {
+    statusMessage.value = formatApiError(error);
+  }
 }
 
 const positionedNodes = computed(() => {

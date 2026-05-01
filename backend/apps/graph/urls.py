@@ -15,8 +15,21 @@ from .views.gds_views import (
     GDSShortestPathView,
 )
 from .views.ingestion_views import CSVUploadView, FakeDataGenerationView, SchemaBootstrapView
-from .views.node_views import DynamicLabelView, NodeDetailView, NodeListView, NodePropertyView
-from .views.relationship_views import RelationshipDetailView, RelationshipListView, RelationshipPropertyView
+from .views.node_views import (
+    DynamicLabelView,
+    NodeDeleteBatchView,
+    NodeDetailView,
+    NodeListView,
+    NodePropertyBatchView,
+    NodePropertyView,
+)
+from .views.relationship_views import (
+    RelationshipDeleteBatchView,
+    RelationshipDetailView,
+    RelationshipListView,
+    RelationshipPropertyBatchView,
+    RelationshipPropertyView,
+)
 
 
 urlpatterns = [
@@ -25,10 +38,14 @@ urlpatterns = [
     path("nodes/", NodeListView.as_view(), name="node-list"),
     path("nodes/<str:label>/<str:node_id>/", NodeDetailView.as_view(), name="node-detail"),
     path("nodes/<str:label>/<str:node_id>/properties/<str:property_name>/", NodePropertyView.as_view(), name="node-property"),
+    path("nodes/properties/batch/", NodePropertyBatchView.as_view(), name="node-property-batch"),
+    path("nodes/delete/", NodeDeleteBatchView.as_view(), name="node-bulk-delete"),
     path("nodes/<str:label>/<str:node_id>/labels/", DynamicLabelView.as_view(), name="dynamic-labels"),
     path("relationships/", RelationshipListView.as_view(), name="relationship-list"),
     path("relationships/<str:relationship_id>/", RelationshipDetailView.as_view(), name="relationship-detail"),
     path("relationships/<str:relationship_id>/properties/<str:property_name>/", RelationshipPropertyView.as_view(), name="relationship-property"),
+    path("relationships/properties/batch/", RelationshipPropertyBatchView.as_view(), name="relationship-property-batch"),
+    path("relationships/delete/", RelationshipDeleteBatchView.as_view(), name="relationship-bulk-delete"),
     path("upload/csv/", CSVUploadView.as_view(), name="csv-upload"),
     path("generate/fake-data/", FakeDataGenerationView.as_view(), name="fake-data"),
     path("fraud/rules/", FraudRulesView.as_view(), name="fraud-rules"),

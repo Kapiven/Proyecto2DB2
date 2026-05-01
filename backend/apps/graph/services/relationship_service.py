@@ -114,3 +114,37 @@ class RelationshipService:
         """
         result = self.repository.execute_write(query, {"relationship_id": relationship_id})
         return result[0] if result else None
+
+    def set_properties_bulk(self, relationship_ids: list[str], properties: dict[str, Any]):
+        query = f"""
+            UNWIND $relationship_ids AS relationship_id
+            MATCH ()-[r]->()
+            WHERE elementId(r) = toInteger(relationship_id)
+            SET r += $properties
+            RETURN count(r) AS updated
+        """
+        result = self.repository.execute_write(query, {"relationship_ids": relationship_ids, "properties": properties})
+        return result[0] if result else {"updated": 0}
+
+    def delete_properties_bulk(self, relationship_ids: list[str], property_names: list[str]):
+        remove_clause = ", ".join(f"r.`{property_name}`" for property_name in property_names)
+        query = f"""
+            UNWIND $relationship_ids AS relationship_id
+            MATCH ()-[r]->()
+            WHERE elementId(r) = toInteger(relationship_id)
+            REMOVE {remove_clause}
+            RETURN count(r) AS updated
+        """
+        result = self.repository.execute_write(query, {"relationship_ids": relationship_ids})
+        return result[0] if result else {"updated": 0}
+
+    def delete_relationships_bulk(self, relationship_ids: list[str]):
+        query = f"""
+            UNWIND $relationship_ids AS relationship_id
+            MATCH ()-[r]->()
+            WHERE elementId(r) = toInteger(relationship_id)
+            DELETE r
+            RETURN count(*) AS deleted
+        """
+        result = self.repository.execute_write(query, {"relationship_ids": relationship_ids})
+        return result[0] if result else {"deleted": 0}

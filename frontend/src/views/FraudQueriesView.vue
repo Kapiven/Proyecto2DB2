@@ -3,6 +3,7 @@
     <div class="section-panel">
       <p class="eyebrow">Reglas automáticas</p>
       <h3>Motor heurístico</h3>
+      <p class="status-text" v-if="errorMessage">{{ errorMessage }}</p>
       <ul class="plain-list">
         <li v-for="rule in rules" :key="rule">{{ rule }}</li>
       </ul>
@@ -30,25 +31,43 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import api from "../api/client";
+import { formatApiError } from "../utils/apiError";
 import DataTable from "../components/DataTable.vue";
 
 const rules = ref([]);
 const queries = ref([]);
 const detectionResult = ref("");
+const errorMessage = ref("");
 
 async function loadRules() {
-  const { data } = await api.get("/fraud/rules/");
-  rules.value = data.rules;
+  errorMessage.value = "";
+  try {
+    const { data } = await api.get("/fraud/rules/");
+    rules.value = data.rules;
+  } catch (error) {
+    errorMessage.value = formatApiError(error);
+  }
 }
 
 async function loadQueries() {
-  const { data } = await api.get("/analytics/demo-queries/");
-  queries.value = data;
+  errorMessage.value = "";
+  try {
+    const { data } = await api.get("/analytics/demo-queries/");
+    queries.value = data;
+  } catch (error) {
+    errorMessage.value = formatApiError(error);
+  }
 }
 
 async function runDetection() {
-  const { data } = await api.post("/fraud/detect/");
-  detectionResult.value = JSON.stringify(data, null, 2);
+  errorMessage.value = "";
+  try {
+    const { data } = await api.post("/fraud/detect/");
+    detectionResult.value = JSON.stringify(data, null, 2);
+  } catch (error) {
+    detectionResult.value = "";
+    errorMessage.value = formatApiError(error);
+  }
 }
 
 onMounted(async () => {

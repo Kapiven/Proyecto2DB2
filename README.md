@@ -123,6 +123,8 @@ Variables:
 - `NEO4J_PASSWORD`
 - `NEO4J_DATABASE`
 
+> Si usas AuraDB, copia el usuario, URI y contraseña exactos que aparecen en el panel de la base de datos. Una contraseña antigua o incorrecta causará `Neo4j authentication failed`.
+
 ### 3. Ejecutar backend
 
 ```powershell
@@ -134,6 +136,8 @@ python manage.py runserver
 API base:
 
 - `http://127.0.0.1:8000/api/`
+
+> Documento del modelo de datos disponible en `DOCUMENTO_DE_PROYECTO.md`.
 
 ## Configuración del frontend
 
@@ -174,6 +178,9 @@ Frontend base:
 - `DELETE /api/nodes/<label>/<node_id>/`
 - `PUT /api/nodes/<label>/<node_id>/properties/<property_name>/`
 - `DELETE /api/nodes/<label>/<node_id>/properties/<property_name>/`
+- `POST /api/nodes/properties/batch/`
+- `DELETE /api/nodes/properties/batch/`
+- `POST /api/nodes/delete/`
 - `POST /api/nodes/<label>/<node_id>/labels/`
 
 ### Relaciones
@@ -185,6 +192,9 @@ Frontend base:
 - `DELETE /api/relationships/<relationship_id>/`
 - `PUT /api/relationships/<relationship_id>/properties/<property_name>/`
 - `DELETE /api/relationships/<relationship_id>/properties/<property_name>/`
+- `POST /api/relationships/properties/batch/`
+- `DELETE /api/relationships/properties/batch/`
+- `POST /api/relationships/delete/`
 
 ### Ingesta
 

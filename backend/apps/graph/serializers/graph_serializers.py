@@ -12,6 +12,23 @@ class NodePropertySerializer(serializers.Serializer):
     value = serializers.JSONField(required=False)
 
 
+class BulkNodePropertySerializer(serializers.Serializer):
+    label = serializers.CharField()
+    node_ids = serializers.ListField(child=serializers.CharField(), allow_empty=False)
+    properties = serializers.DictField()
+
+
+class BulkNodePropertyRemoveSerializer(serializers.Serializer):
+    label = serializers.CharField()
+    node_ids = serializers.ListField(child=serializers.CharField(), allow_empty=False)
+    property_names = serializers.ListField(child=serializers.CharField(), allow_empty=False)
+
+
+class BulkNodeDeleteSerializer(serializers.Serializer):
+    label = serializers.CharField()
+    node_ids = serializers.ListField(child=serializers.CharField(), allow_empty=False)
+
+
 class DynamicLabelSerializer(serializers.Serializer):
     label = serializers.CharField()
     action = serializers.ChoiceField(choices=["add", "remove"])
@@ -28,6 +45,20 @@ class RelationshipSerializer(serializers.Serializer):
 
 class RelationshipPropertySerializer(serializers.Serializer):
     value = serializers.JSONField(required=False)
+
+
+class BulkRelationshipPropertySerializer(serializers.Serializer):
+    relationship_ids = serializers.ListField(child=serializers.CharField(), allow_empty=False)
+    properties = serializers.DictField()
+
+
+class BulkRelationshipPropertyRemoveSerializer(serializers.Serializer):
+    relationship_ids = serializers.ListField(child=serializers.CharField(), allow_empty=False)
+    property_names = serializers.ListField(child=serializers.CharField(), allow_empty=False)
+
+
+class BulkRelationshipDeleteSerializer(serializers.Serializer):
+    relationship_ids = serializers.ListField(child=serializers.CharField(), allow_empty=False)
 
 
 class CSVUploadSerializer(serializers.Serializer):

@@ -9,6 +9,7 @@
       <button class="primary-button" @click="loadDashboard">Actualizar KPIs</button>
     </div>
 
+    <p class="status-text" v-if="statusMessage">{{ statusMessage }}</p>
     <div class="kpi-grid">
       <KpiCard label="Total nodos" :value="dashboard.total_nodos || 0" />
       <KpiCard label="Total relaciones" :value="dashboard.total_relaciones || 0" />
@@ -39,20 +40,32 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import api from "../api/client";
+import { formatApiError } from "../utils/apiError";
 import KpiCard from "../components/KpiCard.vue";
 import DataTable from "../components/DataTable.vue";
 
 const dashboard = ref({});
 const aggregations = ref({});
+const statusMessage = ref("");
 
 async function loadDashboard() {
-  const { data } = await api.get("/dashboard/");
-  dashboard.value = data;
+  statusMessage.value = "";
+  try {
+    const { data } = await api.get("/dashboard/");
+    dashboard.value = data;
+  } catch (error) {
+    statusMessage.value = formatApiError(error);
+  }
 }
 
 async function loadAggregations() {
-  const { data } = await api.get("/analytics/aggregations/");
-  aggregations.value = data;
+  statusMessage.value = "";
+  try {
+    const { data } = await api.get("/analytics/aggregations/");
+    aggregations.value = data;
+  } catch (error) {
+    statusMessage.value = formatApiError(error);
+  }
 }
 
 onMounted(async () => {

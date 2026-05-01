@@ -5,7 +5,8 @@ from __future__ import annotations
 import csv
 import io
 import random
-from datetime import datetime, timedelta, timezone
+import re
+from datetime import date, datetime, timedelta, timezone
 
 from faker import Faker
 
@@ -109,7 +110,7 @@ class IngestionService:
         dispositivos = []
         transacciones = []
         alertas = []
-        rels = {key: [] for key in ["TIENE_CUENTA", "USA_DISPOSITIVO", "TIENE_TARJETA", "ORIGINA", "DESTINADA_A", "UTILIZA_DISPOSITIVO", "DESDE_UBICACION", "EN_COMERCIO", "UTILIZA_TARJETA", "GENERA_ALERTA", "PERTENECE_A", "LOCALIZADO_EN"]}
+        rels = {key: [] for key in ["TIENE_CUENTA", "USA_DISPOSITIVO", "TIENE_TARJETA", "ORIGINA", "DESTINADA_A", "UTILIZA_DISPOSITIVO", "DESDE_UBICACION", "EN_COMERCIO", "UTILIZA_TARJETA", "GENERA_ALERTA", "PERTENECE_A", "LOCALIZADO_EN", "REMITE", "INTERACTUA"]}
 
         shared_device_ids = [f"DIS-SHARED-{idx}" for idx in range(25)]
         for shared_id in shared_device_ids:
@@ -119,7 +120,7 @@ class IngestionService:
                     "tipo": random.choice(["Móvil", "Laptop", "Tablet"]),
                     "ip_address": self.faker.ipv4_public(),
                     "user_agent": self.faker.user_agent(),
-                    "ultima_conexion": (now - timedelta(minutes=random.randint(1, 300))).isoformat(),
+                    "ultima_conexion": now - timedelta(minutes=random.randint(1, 300)),
                 }
             )
 
@@ -136,7 +137,7 @@ class IngestionService:
                     "genero": random.choice(["F", "M", "X"]),
                     "riesgo": risk_score,
                     "nivel_riesgo": risk_level,
-                    "fecha_registro": (now - timedelta(days=random.randint(60, 1800))).date().isoformat(),
+                    "fecha_registro": (now - timedelta(days=random.randint(60, 1800))).date(),
                     "email": self.faker.email(),
                     "telefono": self.faker.phone_number(),
                     "extra_labels": extra_labels,
@@ -154,12 +155,24 @@ class IngestionService:
                             "tipo": random.choice(["Móvil", "Laptop", "Tablet"]),
                             "ip_address": self.faker.ipv4_public(),
                             "user_agent": self.faker.user_agent(),
-                            "ultima_conexion": (now - timedelta(minutes=random.randint(1, 600))).isoformat(),
+                            "ultima_conexion": now - timedelta(minutes=random.randint(1, 600)),
                         }
                     )
                 client_device_ids.append(device_id)
-                rels["USA_DISPOSITIVO"].append({"start_id": client_id, "end_id": device_id, "fecha_uso": now.isoformat(), "primera_vez": random.choice([True, False]), "veces_usado": random.randint(1, 120)})
-                rels["LOCALIZADO_EN"].append({"start_id": device_id, "end_id": random.choice(ubicaciones)["id"], "fecha": now.isoformat(), "tipo_conexion": random.choice(["wifi", "datos", "vpn"]), "ip_detectada": self.faker.ipv4_public()})
+                rels["USA_DISPOSITIVO"].append({
+                    "start_id": client_id,
+                    "end_id": device_id,
+                    "fecha_uso": now - timedelta(minutes=random.randint(1, 120)),
+                    "primera_vez": random.choice([True, False]),
+                    "veces_usado": random.randint(1, 120),
+                })
+                rels["LOCALIZADO_EN"].append({
+                    "start_id": device_id,
+                    "end_id": random.choice(ubicaciones)["id"],
+                    "fecha": now - timedelta(minutes=random.randint(1, 120)),
+                    "tipo_conexion": random.choice(["wifi", "datos", "vpn"]),
+                    "ip_detectada": self.faker.ipv4_public(),
+                })
 
             for account_index in range(cuentas_por_cliente):
                 account_id = f"CUE-{client_index:05d}-{account_index}"
@@ -169,13 +182,25 @@ class IngestionService:
                         "saldo": round(random.uniform(100, 45000), 2),
                         "tipo": random.choice(["Ahorro", "Corriente", "Crédito"]),
                         "estado": random.choice(["Activa", "Revisión", "Bloqueada"]),
-                        "fecha_apertura": (now - timedelta(days=random.randint(10, 2000))).date().isoformat(),
+                        "fecha_apertura": (now - timedelta(days=random.randint(10, 2000))).date(),
                         "limite_credito": round(random.uniform(1000, 25000), 2),
                         "extra_labels": ["Sospechosa"] if risk_level == "Alto" and random.random() < 0.1 else [],
                     }
                 )
-                rels["TIENE_CUENTA"].append({"start_id": client_id, "end_id": account_id, "fecha_asignacion": now.date().isoformat(), "tipo_relacion": "Titular", "es_principal": account_index == 0})
-                rels["PERTENECE_A"].append({"start_id": account_id, "end_id": random.choice(bancos)["id"], "fecha_asociacion": now.date().isoformat(), "canal_apertura": random.choice(["Sucursal", "Web", "App"]), "verificada": random.choice([True, False])})
+                rels["TIENE_CUENTA"].append({
+                    "start_id": client_id,
+                    "end_id": account_id,
+                    "fecha_asignacion": now.date(),
+                    "tipo_relacion": "Titular",
+                    "es_principal": account_index == 0,
+                })
+                rels["PERTENECE_A"].append({
+                    "start_id": account_id,
+                    "end_id": random.choice(bancos)["id"],
+                    "fecha_asociacion": now.date(),
+                    "canal_apertura": random.choice(["Sucursal", "Web", "App"]),
+                    "verificada": random.choice([True, False]),
+                })
 
                 tarjeta_id = f"TAR-{client_index:05d}-{account_index}"
                 tarjetas.append(
@@ -184,15 +209,23 @@ class IngestionService:
                         "numero": self.faker.credit_card_number(),
                         "tipo": random.choice(["Débito", "Crédito", "Virtual"]),
                         "estado": random.choice(["Activa", "Suspendida", "Expirada"]),
-                        "fecha_expiracion": (now + timedelta(days=random.randint(200, 1200))).date().isoformat(),
+                        "fecha_expiracion": (now + timedelta(days=random.randint(200, 1200))).date(),
                         "limite": round(random.uniform(1000, 25000), 2),
                     }
                 )
-                rels["TIENE_TARJETA"].append({"start_id": account_id, "end_id": tarjeta_id, "fecha_emision": now.date().isoformat(), "es_principal": True, "estado_asignacion": "Activa"})
+                rels["TIENE_TARJETA"].append({
+                    "start_id": account_id,
+                    "end_id": tarjeta_id,
+                    "fecha_emision": now.date(),
+                    "es_principal": True,
+                    "estado_asignacion": "Activa",
+                })
 
                 last_transaction_time = now - timedelta(days=random.randint(1, 40))
                 for trx_index in range(transacciones_por_cuenta):
-                    last_transaction_time += timedelta(minutes=random.randint(1, 4) if trx_index > 0 and random.random() < 0.25 else random.randint(360, 1800))
+                    last_transaction_time += timedelta(
+                        minutes=random.randint(1, 4) if trx_index > 0 and random.random() < 0.25 else random.randint(360, 1800)
+                    )
                     transaction_id = f"TRX-{client_index:05d}-{account_index}-{trx_index}"
                     commerce = random.choice(comercios)
                     location = random.choice(ubicaciones)
@@ -205,11 +238,12 @@ class IngestionService:
                     if random.random() < 0.15:
                         suspicious_reasons.append("ubicacion_distinta")
                     fraud_flag = len(suspicious_reasons) >= 2
+                    monto = round(random.uniform(10, 4000), 2)
                     transacciones.append(
                         {
                             "id": transaction_id,
-                            "monto": round(random.uniform(10, 4000), 2),
-                            "fecha": last_transaction_time.isoformat(),
+                            "monto": monto,
+                            "fecha": last_transaction_time,
                             "tipo": random.choice(["Compra", "Retiro", "Transferencia"]),
                             "fraudulenta": fraud_flag,
                             "estado": random.choice(["Aprobada", "Pendiente", "Rechazada"]),
@@ -218,17 +252,87 @@ class IngestionService:
                             "extra_labels": ["Fraudulenta"] if fraud_flag else ["Sospechosa"] if suspicious_reasons else [],
                         }
                     )
-                    rels["ORIGINA"].append({"start_id": account_id, "end_id": transaction_id, "fecha_origen": last_transaction_time.isoformat(), "tipo_operacion": "cargo", "es_inusual": bool(suspicious_reasons)})
-                    rels["DESTINADA_A"].append({"start_id": account_id, "end_id": transaction_id, "fecha_destino": last_transaction_time.isoformat(), "tipo_destino": random.choice(["propia", "tercero", "comercio"]), "es_sospechosa": bool(suspicious_reasons)})
-                    rels["UTILIZA_DISPOSITIVO"].append({"start_id": transaction_id, "end_id": device_id, "fecha": last_transaction_time.isoformat(), "dispositivo_nuevo": random.choice([True, False]), "coincidencia_usuario": device_id not in shared_device_ids})
-                    rels["DESDE_UBICACION"].append({"start_id": transaction_id, "end_id": location["id"], "distancia_km": round(random.uniform(0.1, 3000), 2), "es_anomala": "ubicacion_distinta" in suspicious_reasons, "cambio_pais": location["pais"] != "Guatemala"})
-                    rels["EN_COMERCIO"].append({"start_id": transaction_id, "end_id": commerce["id"], "frecuencia_cliente": random.randint(1, 30), "es_comercio_habitual": random.choice([True, False]), "coincidencia_categoria": random.choice([True, False])})
-                    rels["UTILIZA_TARJETA"].append({"start_id": transaction_id, "end_id": tarjeta_id, "metodo_autenticacion": random.choice(["PIN", "OTP", "Biometría", "3DS"]), "intento_fallido": random.randint(0, 3), "tarjeta_nueva": random.choice([True, False])})
+                    rels["ORIGINA"].append({
+                        "start_id": account_id,
+                        "end_id": transaction_id,
+                        "fecha_origen": last_transaction_time,
+                        "tipo_operacion": "cargo",
+                        "es_inusual": bool(suspicious_reasons),
+                    })
+                    rels["DESTINADA_A"].append({
+                        "start_id": account_id,
+                        "end_id": transaction_id,
+                        "fecha_destino": last_transaction_time,
+                        "tipo_destino": random.choice(["propia", "tercero", "comercio"]),
+                        "es_sospechosa": bool(suspicious_reasons),
+                    })
+                    rels["UTILIZA_DISPOSITIVO"].append({
+                        "start_id": transaction_id,
+                        "end_id": device_id,
+                        "fecha": last_transaction_time,
+                        "dispositivo_nuevo": random.choice([True, False]),
+                        "coincidencia_usuario": device_id not in shared_device_ids,
+                    })
+                    rels["DESDE_UBICACION"].append({
+                        "start_id": transaction_id,
+                        "end_id": location["id"],
+                        "distancia_km": round(random.uniform(0.1, 3000), 2),
+                        "es_anomala": "ubicacion_distinta" in suspicious_reasons,
+                        "cambio_pais": location["pais"] != "Guatemala",
+                    })
+                    rels["EN_COMERCIO"].append({
+                        "start_id": transaction_id,
+                        "end_id": commerce["id"],
+                        "frecuencia_cliente": random.randint(1, 30),
+                        "es_comercio_habitual": random.choice([True, False]),
+                        "coincidencia_categoria": random.choice([True, False]),
+                    })
+                    rels["UTILIZA_TARJETA"].append({
+                        "start_id": transaction_id,
+                        "end_id": tarjeta_id,
+                        "metodo_autenticacion": random.choice(["PIN", "OTP", "Biometría", "3DS"]),
+                        "intento_fallido": random.randint(0, 3),
+                        "tarjeta_nueva": random.choice([True, False]),
+                    })
+
+                    target_account_id = random.choice(cuentas)["id"] if cuentas else account_id
+                    rels["REMITE"].append({
+                        "start_id": transaction_id,
+                        "end_id": target_account_id,
+                        "monto_recibido": round(monto - random.uniform(0.0, min(20.0, monto * 0.05)), 2),
+                        "fecha_recepcion": last_transaction_time + timedelta(minutes=random.randint(1, 120)),
+                        "comision": round(random.uniform(0.0, 50.0), 2),
+                    })
+                    rels["INTERACTUA"].append({
+                        "start_id": transaction_id,
+                        "end_id": random.choice(bancos)["id"],
+                        "tipo_transferencia": random.choice(["Nacional", "Internacional", "ACH", "SWIFT"]),
+                        "codigo_swift": f"{random.choice(['ABC', 'DEF', 'GHI', 'JKL'])}{random.randint(1000, 9999)}",
+                        "costo_transferencia": round(random.uniform(0.5, 30.0), 2),
+                        "tiempo_procesamiento": random.randint(1, 120),
+                    })
                     if fraud_flag or suspicious_reasons:
                         alert_id = f"ALT-{client_index:05d}-{account_index}-{trx_index}"
                         severity = "Alta" if fraud_flag else "Media"
-                        alertas.append({"id": alert_id, "tipo_alerta": "Transacción sospechosa", "fecha": last_transaction_time.isoformat(), "severidad": severity, "descripcion": ", ".join(suspicious_reasons) or "Regla heurística", "resuelta": False})
-                        rels["GENERA_ALERTA"].append({"start_id": transaction_id, "end_id": alert_id, "score_riesgo": round(min(0.99, risk_score + len(suspicious_reasons) * 0.12), 2), "regla_activada": suspicious_reasons[0] if suspicious_reasons else "heuristica", "prioridad": severity})
+                        alertas.append(
+                            {
+                                "id": alert_id,
+                                "tipo_alerta": "Transacción sospechosa",
+                                "fecha": last_transaction_time,
+                                "severidad": severity,
+                                "descripcion": ", ".join(suspicious_reasons) or "Regla heurística",
+                                "resuelta": False,
+                            }
+                        )
+                        rels["GENERA_ALERTA"].append(
+                            {
+                                "start_id": transaction_id,
+                                "end_id": alert_id,
+                                "score_riesgo": round(min(0.99, risk_score + len(suspicious_reasons) * 0.12), 2),
+                                "regla_activada": suspicious_reasons[0] if suspicious_reasons else "heuristica",
+                                "prioridad": severity,
+                            }
+                        )
 
         self._batch_create_nodes("Cliente", clientes, allow_extra_labels=True)
         self._batch_create_nodes("Cuenta", cuentas, allow_extra_labels=True)
@@ -294,16 +398,41 @@ class IngestionService:
                 normalized[key] = None
                 continue
             value = value.strip()
+            if value == "":
+                normalized[key] = None
+                continue
             if value.lower() in {"true", "false"}:
                 normalized[key] = value.lower() == "true"
-            elif value.startswith("[") and value.endswith("]"):
-                normalized[key] = [item.strip() for item in value[1:-1].split("|") if item.strip()]
-            else:
+                continue
+            if value.startswith("[") and value.endswith("]"):
+                inner = value[1:-1].strip()
+                if not inner:
+                    normalized[key] = []
+                else:
+                    items = re.split(r"\s*\|\s*|\s*,\s*", inner)
+                    normalized[key] = [self._normalize_row({"item": item})["item"] for item in items if item.strip()]
+                continue
+            if re.match(r"^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}", value):
                 try:
-                    normalized[key] = int(value)
+                    normalized[key] = datetime.fromisoformat(value)
+                    continue
                 except ValueError:
-                    try:
-                        normalized[key] = float(value)
-                    except ValueError:
-                        normalized[key] = value
+                    pass
+            if re.match(r"^\d{4}-\d{2}-\d{2}$", value):
+                try:
+                    normalized[key] = date.fromisoformat(value)
+                    continue
+                except ValueError:
+                    pass
+            try:
+                normalized[key] = int(value)
+                continue
+            except ValueError:
+                pass
+            try:
+                normalized[key] = float(value)
+                continue
+            except ValueError:
+                pass
+            normalized[key] = value
         return normalized
