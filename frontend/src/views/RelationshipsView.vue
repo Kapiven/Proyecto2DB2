@@ -20,7 +20,15 @@
         <input v-model="form.start_node_id" placeholder="ID nodo origen" />
         <input v-model="form.end_label" placeholder="Etiqueta destino" />
         <input v-model="form.end_node_id" placeholder="ID nodo destino" />
-        <textarea v-model="form.propertiesInput" rows="8" placeholder='{"fecha_asignacion":"2026-01-01","tipo_relacion":"Titular","es_principal":true}'></textarea>
+        <div class="properties-grid">
+          <div class="property-row" v-for="(row, index) in form.propertyRows" :key="index">
+            <input v-model="row.key" placeholder="Propiedad" />
+            <input v-model="row.value" placeholder="Valor" />
+          </div>
+          <button type="button" class="secondary-button small" @click="form.propertyRows.push({ key: '', value: '' })">
+            Agregar propiedad
+          </button>
+        </div>
         <button class="primary-button" @click="createRelationship">Crear relación</button>
       </div>
       <p class="status-text">{{ message }}</p>
@@ -30,17 +38,25 @@
       <p class="eyebrow">Operaciones en lote</p>
       <h3>Propiedades y borrado masivo</h3>
       <div class="form-grid">
-        <textarea v-model="batchForm.relationshipIdsInput" rows="4" placeholder='["12345","12346"]'></textarea>
-        <textarea v-model="batchForm.propertiesInput" rows="6" placeholder='{"tipo_relacion":"Titular","es_principal":true}'></textarea>
+        <input v-model="batchForm.relationshipIdsInput" placeholder="IDs de relaciones separadas por coma" />
+        <div class="properties-grid">
+          <div class="property-row" v-for="(row, index) in batchForm.propertyRows" :key="index">
+            <input v-model="row.key" placeholder="Propiedad" />
+            <input v-model="row.value" placeholder="Valor" />
+          </div>
+          <button type="button" class="secondary-button small" @click="batchForm.propertyRows.push({ key: '', value: '' })">
+            Agregar propiedad
+          </button>
+        </div>
         <button class="primary-button" @click="batchUpdateProperties">Actualizar propiedades en relaciones</button>
       </div>
       <div class="form-grid">
-        <textarea v-model="batchRemoveForm.relationshipIdsInput" rows="4" placeholder='["12345","12346"]'></textarea>
-        <textarea v-model="batchRemoveForm.propertyNamesInput" rows="4" placeholder='["score_riesgo","prioridad"]'></textarea>
+        <input v-model="batchRemoveForm.relationshipIdsInput" placeholder="IDs de relaciones separadas por coma" />
+        <input v-model="batchRemoveForm.propertyNamesInput" placeholder="Propiedades separadas por coma" />
         <button class="secondary-button" @click="batchRemoveProperties">Eliminar propiedades en relaciones</button>
       </div>
       <div class="form-grid">
-        <textarea v-model="batchDeleteForm.relationshipIdsInput" rows="4" placeholder='["12345","12346"]'></textarea>
+        <input v-model="batchDeleteForm.relationshipIdsInput" placeholder="IDs de relaciones separadas por coma" />
         <button class="secondary-button" @click="batchDeleteRelationships">Eliminar relaciones</button>
       </div>
       <p class="status-text">{{ batchMessage }}</p>
@@ -63,18 +79,25 @@ const form = reactive({
   start_node_id: "CLI-MANUAL-1",
   end_label: "Cuenta",
   end_node_id: "CUE-MANUAL-1",
-  propertiesInput: '{\n  "fecha_asignacion": "2026-01-01",\n  "tipo_relacion": "Titular",\n  "es_principal": true\n}'
+  propertyRows: [
+    { key: "fecha_asignacion", value: "2026-01-01" },
+    { key: "tipo_relacion", value: "Titular" },
+    { key: "es_principal", value: "true" }
+  ]
 });
 const batchForm = reactive({
-  relationshipIdsInput: '["12345","12346"]',
-  propertiesInput: '{\n  "tipo_relacion": "Titular",\n  "es_principal": true\n}'
+  relationshipIdsInput: "12345,12346",
+  propertyRows: [
+    { key: "tipo_relacion", value: "Titular" },
+    { key: "es_principal", value: "true" }
+  ]
 });
 const batchRemoveForm = reactive({
-  relationshipIdsInput: '["12345","12346"]',
-  propertyNamesInput: '["score_riesgo","prioridad"]'
+  relationshipIdsInput: "12345,12346",
+  propertyNamesInput: "score_riesgo,prioridad"
 });
 const batchDeleteForm = reactive({
-  relationshipIdsInput: '["12345","12346"]'
+  relationshipIdsInput: "12345,12346"
 });
 
 async function loadRelationships() {
@@ -87,6 +110,32 @@ async function loadRelationships() {
   }
 }
 
+function collectProperties(rows) {
+  return rows.reduce((result, { key, value }) => {
+    const trimmedKey = key?.trim();
+    if (trimmedKey) {
+      result[trimmedKey] = parseSimpleValue(value);
+    }
+    return result;
+  }, {});
+}
+
+function parseCsv(value) {
+  return String(value)
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function parseSimpleValue(value) {
+  if (value === null || value === undefined) return value;
+  const text = String(value).trim();
+  if (text === "") return "";
+  if (/^(true|false)$/i.test(text)) return text.toLowerCase() === "true";
+  if (!Number.isNaN(Number(text)) && text !== "") return Number(text);
+  return text;
+}
+
 async function createRelationship() {
   try {
     await api.post("/relationships/", {
@@ -95,7 +144,7 @@ async function createRelationship() {
       start_node_id: form.start_node_id,
       end_label: form.end_label,
       end_node_id: form.end_node_id,
-      properties: JSON.parse(form.propertiesInput)
+      properties: collectProperties(form.propertyRows)
     });
     message.value = "Relación creada correctamente.";
     await loadRelationships();
@@ -104,18 +153,10 @@ async function createRelationship() {
   }
 }
 
-function parseJsonInput(value) {
-  try {
-    return JSON.parse(value);
-  } catch (error) {
-    throw new Error("JSON inválido. Revisar el formato de entrada.");
-  }
-}
-
 async function batchUpdateProperties() {
   try {
-    const relationship_ids = parseJsonInput(batchForm.relationshipIdsInput);
-    const properties = parseJsonInput(batchForm.propertiesInput);
+    const relationship_ids = parseCsv(batchForm.relationshipIdsInput);
+    const properties = collectProperties(batchForm.propertyRows);
     await api.post("/relationships/properties/batch/", {
       relationship_ids,
       properties
@@ -129,8 +170,8 @@ async function batchUpdateProperties() {
 
 async function batchRemoveProperties() {
   try {
-    const relationship_ids = parseJsonInput(batchRemoveForm.relationshipIdsInput);
-    const property_names = parseJsonInput(batchRemoveForm.propertyNamesInput);
+    const relationship_ids = parseCsv(batchRemoveForm.relationshipIdsInput);
+    const property_names = parseCsv(batchRemoveForm.propertyNamesInput);
     await api.delete("/relationships/properties/batch/", { data: {
       relationship_ids,
       property_names
@@ -144,7 +185,7 @@ async function batchRemoveProperties() {
 
 async function batchDeleteRelationships() {
   try {
-    const relationship_ids = parseJsonInput(batchDeleteForm.relationshipIdsInput);
+    const relationship_ids = parseCsv(batchDeleteForm.relationshipIdsInput);
     await api.post("/relationships/delete/", {
       relationship_ids
     });
@@ -157,3 +198,23 @@ async function batchDeleteRelationships() {
 
 onMounted(loadRelationships);
 </script>
+
+<style scoped>
+.properties-grid {
+  display: grid;
+  gap: 12px;
+}
+.property-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.property-row input {
+  width: 100%;
+}
+button.small {
+  width: fit-content;
+  padding: 10px 14px;
+  font-size: 13px;
+}
+</style>
