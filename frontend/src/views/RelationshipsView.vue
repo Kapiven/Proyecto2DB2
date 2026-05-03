@@ -31,7 +31,7 @@
         </div>
         <button class="primary-button" @click="createRelationship">Crear relación</button>
       </div>
-      <p class="status-text">{{ message }}</p>
+      <p v-if="createMessage" class="status-text">{{ createMessage }}</p>
     </div>
 
     <div class="section-panel">
@@ -71,7 +71,7 @@ import { formatApiError } from "../utils/apiError";
 import DataTable from "../components/DataTable.vue";
 
 const relationships = ref([]);
-const message = ref("");
+const createMessage = ref("");
 const batchMessage = ref("");
 const form = reactive({
   relationship_type: "TIENE_CUENTA",
@@ -137,6 +137,7 @@ function parseSimpleValue(value) {
 }
 
 async function createRelationship() {
+  createMessage.value = "";
   try {
     await api.post("/relationships/", {
       relationship_type: form.relationship_type,
@@ -146,14 +147,16 @@ async function createRelationship() {
       end_node_id: form.end_node_id,
       properties: collectProperties(form.propertyRows)
     });
-    message.value = "Relación creada correctamente.";
+    createMessage.value = "✓ Relación creada correctamente.";
+    setTimeout(() => { createMessage.value = ""; }, 3000);
     await loadRelationships();
   } catch (error) {
-    message.value = formatApiError(error);
+    createMessage.value = formatApiError(error);
   }
 }
 
 async function batchUpdateProperties() {
+  batchMessage.value = "";
   try {
     const relationship_ids = parseCsv(batchForm.relationshipIdsInput);
     const properties = collectProperties(batchForm.propertyRows);
@@ -161,7 +164,8 @@ async function batchUpdateProperties() {
       relationship_ids,
       properties
     });
-    batchMessage.value = "Propiedades actualizadas en lote.";
+    batchMessage.value = "✓ Propiedades actualizadas en lote.";
+    setTimeout(() => { batchMessage.value = ""; }, 3000);
     await loadRelationships();
   } catch (error) {
     batchMessage.value = formatApiError(error);
@@ -169,6 +173,7 @@ async function batchUpdateProperties() {
 }
 
 async function batchRemoveProperties() {
+  batchMessage.value = "";
   try {
     const relationship_ids = parseCsv(batchRemoveForm.relationshipIdsInput);
     const property_names = parseCsv(batchRemoveForm.propertyNamesInput);
@@ -176,7 +181,8 @@ async function batchRemoveProperties() {
       relationship_ids,
       property_names
     }});
-    batchMessage.value = "Propiedades eliminadas en lote.";
+    batchMessage.value = "✓ Propiedades eliminadas en lote.";
+    setTimeout(() => { batchMessage.value = ""; }, 3000);
     await loadRelationships();
   } catch (error) {
     batchMessage.value = formatApiError(error);
@@ -184,12 +190,14 @@ async function batchRemoveProperties() {
 }
 
 async function batchDeleteRelationships() {
+  batchMessage.value = "";
   try {
     const relationship_ids = parseCsv(batchDeleteForm.relationshipIdsInput);
     await api.post("/relationships/delete/", {
       relationship_ids
     });
-    batchMessage.value = "Relaciones eliminadas en lote.";
+    batchMessage.value = "✓ Relaciones eliminadas en lote.";
+    setTimeout(() => { batchMessage.value = ""; }, 3000);
     await loadRelationships();
   } catch (error) {
     batchMessage.value = formatApiError(error);

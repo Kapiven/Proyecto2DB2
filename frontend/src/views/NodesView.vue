@@ -15,8 +15,24 @@
         <input v-model="filters.property_value" placeholder="Valor" />
         <button class="primary-button" @click="loadNodes">Filtrar</button>
       </div>
+      <p v-if="filterMessage" class="status-text">{{ filterMessage }}</p>
 
-      <DataTable :rows="nodes" />
+      <div v-if="nodes.length > 0">
+        <DataTable :rows="paginatedNodes" />
+        <div class="pagination-controls" v-if="totalPages > 1">
+          <button class="secondary-button" :disabled="currentPage === 1" @click="currentPage--">
+            ← Anterior
+          </button>
+          <span class="pagination-info">
+            Página {{ currentPage }} de {{ totalPages }} ({{ nodes.length }} resultados)
+          </span>
+          <button class="secondary-button" :disabled="currentPage === totalPages" @click="currentPage++">
+            Siguiente →
+          </button>
+        </div>
+        <p v-if="totalPages === 1" class="pagination-info">{{ nodes.length }} resultados</p>
+      </div>
+      <p v-else class="status-text">Sin resultados</p>
     </div>
 
     <div class="section-panel">
@@ -35,6 +51,7 @@
         </div>
         <button class="primary-button" @click="createNode">Crear nodo</button>
       </div>
+      <p v-if="createMessage" class="status-text">{{ createMessage }}</p>
     </div>
 
     <div class="section-panel">
@@ -50,7 +67,7 @@
         </select>
         <button class="secondary-button" @click="updateDynamicLabel">Aplicar</button>
       </div>
-      <p class="status-text">{{ message }}</p>
+      <p v-if="labelMessage" class="status-text">{{ labelMessage }}</p>
     </div>
 
     <div class="section-panel">
@@ -87,13 +104,23 @@
 </template>
 
 <script setup>
-import { onMounted, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
 import api from "../api/client";
 import { formatApiError } from "../utils/apiError";
 import DataTable from "../components/DataTable.vue";
 
 const nodes = ref([]);
-const message = ref("");
+const filterMessage = ref("");
+const createMessage = ref("");
+const labelMessage = ref("");
+const currentPage = ref(1);
+const itemsPerPage = 10;
+
+const totalPages = computed(() => Math.ceil(nodes.value.length / itemsPerPage));
+const paginatedNodes = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage;
+  return nodes.value.slice(start, start + itemsPerPage);
+});
 const filters = reactive({ label: "", property_name: "", property_value: "" });
 const createForm = reactive({
   labelInput: "Cliente,RiesgoBajo",
@@ -157,42 +184,51 @@ function parseSimpleValue(value) {
 }
 
 async function loadNodes() {
-  message.value = "";
+  filterMessage.value = "";
   try {
     const { data } = await api.get("/nodes/", { params: filters });
     nodes.value = data;
+    currentPage.value = 1;
+    if (filters.label || filters.property_name || filters.property_value) {
+      filterMessage.value = `Filtro aplicado: ${data.length} nodo(s) encontrado(s).`;
+    }
   } catch (error) {
-    message.value = formatApiError(error);
+    filterMessage.value = formatApiError(error);
   }
 }
 
 async function createNode() {
+  createMessage.value = "";
   try {
     await api.post("/nodes/", {
       labels: createForm.labelInput.split(",").map((item) => item.trim()).filter(Boolean),
       properties: collectProperties(createForm.propertyRows)
     });
-    message.value = "Nodo creado correctamente.";
+    createMessage.value = "✓ Nodo creado correctamente.";
+    setTimeout(() => { createMessage.value = ""; }, 3000);
     await loadNodes();
   } catch (error) {
-    message.value = formatApiError(error);
+    createMessage.value = formatApiError(error);
   }
 }
 
 async function updateDynamicLabel() {
+  labelMessage.value = "";
   try {
     await api.post(`/nodes/${labelForm.baseLabel}/${labelForm.nodeId}/labels/`, {
       label: labelForm.dynamicLabel,
       action: labelForm.action
     });
-    message.value = "Etiqueta dinámica actualizada.";
+    labelMessage.value = "✓ Etiqueta dinámica actualizada.";
+    setTimeout(() => { labelMessage.value = ""; }, 3000);
     await loadNodes();
   } catch (error) {
-    message.value = formatApiError(error);
+    labelMessage.value = formatApiError(error);
   }
 }
 
 async function batchUpdateProperties() {
+  batchMessage.value = "";
   try {
     const node_ids = parseCsv(batchForm.nodeIdsInput);
     const properties = collectProperties(batchForm.propertyRows);
@@ -201,7 +237,8 @@ async function batchUpdateProperties() {
       node_ids,
       properties
     });
-    batchMessage.value = "Propiedades actualizadas en lote.";
+    batchMessage.value = "✓ Propiedades actualizadas en lote.";
+    setTimeout(() => { batchMessage.value = ""; }, 3000);
     await loadNodes();
   } catch (error) {
     batchMessage.value = formatApiError(error);
@@ -209,6 +246,7 @@ async function batchUpdateProperties() {
 }
 
 async function batchRemoveProperties() {
+  batchMessage.value = "";
   try {
     const node_ids = parseCsv(batchRemoveForm.nodeIdsInput);
     const property_names = parseCsv(batchRemoveForm.propertyNamesInput);
@@ -217,7 +255,8 @@ async function batchRemoveProperties() {
       node_ids,
       property_names
     }});
-    batchMessage.value = "Propiedades eliminadas en lote.";
+    batchMessage.value = "✓ Propiedades eliminadas en lote.";
+    setTimeout(() => { batchMessage.value = ""; }, 3000);
     await loadNodes();
   } catch (error) {
     batchMessage.value = formatApiError(error);
@@ -225,13 +264,15 @@ async function batchRemoveProperties() {
 }
 
 async function batchDeleteNodes() {
+  batchMessage.value = "";
   try {
     const node_ids = parseCsv(batchDeleteForm.nodeIdsInput);
     await api.post("/nodes/delete/", {
       label: batchDeleteForm.label,
       node_ids
     });
-    batchMessage.value = "Nodos eliminados en lote.";
+    batchMessage.value = "✓ Nodos eliminados en lote.";
+    setTimeout(() => { batchMessage.value = ""; }, 3000);
     await loadNodes();
   } catch (error) {
     batchMessage.value = formatApiError(error);
@@ -258,5 +299,25 @@ button.small {
   width: fit-content;
   padding: 10px 14px;
   font-size: 13px;
+}
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.pagination-controls button {
+  width: fit-content;
+}
+.pagination-controls button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.pagination-info {
+  color: var(--muted);
+  font-size: 14px;
 }
 </style>
