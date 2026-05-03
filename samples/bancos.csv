@@ -1,0 +1,11 @@
+id,nombre,codigo,ciudad,tipo,riesgo,nivel_riesgo
+BAN-000,Banco Inmobiliaria YX S.Coop.,BC000,Santa Cruz de Tenerife,internacional,2,Bajo
+BAN-001,Banco Comercial Integrales S.L.L.,BC001,Tarragona,internacional,9,Alto
+BAN-002,Banco Servicios CII S.Coop.,BC002,Ourense,comercial,8,Alto
+BAN-003,Banco Hnos Pujadas S.L.N.E,BC003,Cáceres,cooperativa,2,Bajo
+BAN-004,Banco Casado & Asociados S.A.T.,BC004,Lleida,internacional,6,Medio
+BAN-005,Banco Hermanos Llopis S.Com.,BC005,Álava,internacional,3,Medio
+BAN-006,Banco Doménech y asociados S.Coop.,BC006,Santa Cruz de Tenerife,cooperativa,5,Bajo
+BAN-007,Banco Alegre y asociados S.A.,BC007,Segovia,comercial,3,Bajo
+BAN-008,Banco Restauración Paz S.L.N.E,BC008,Zaragoza,cooperativa,5,Bajo
+BAN-009,Banco Grupo Rivas S.L.,BC009,Málaga,central,9,Alto

@@ -1,0 +1,51 @@
+id,tipo_alerta,fecha,severidad,descripcion,resuelta
+ALT-0000,velocity,2026-04-30 22:40:56,media,Eveniet libero sint aut libero inventore iusto numquam.,False
+ALT-0001,device_sharing,2026-04-16 14:38:59,critica,Tempore porro adipisci quam numquam fuga autem optio.,False
+ALT-0002,fraude_confirmado,2026-04-03 06:49:09,alta,Mollitia vitae doloribus a facilis a id.,True
+ALT-0003,velocity,2026-04-15 13:20:06,critica,Officia veniam neque porro assumenda.,False
+ALT-0004,device_sharing,2026-04-27 04:50:06,media,Earum nostrum earum tempora.,False
+ALT-0005,velocity,2026-04-03 23:06:42,media,Aut voluptas earum alias eveniet similique.,False
+ALT-0006,fraude_confirmado,2026-04-05 00:14:24,alta,Qui ea fuga fuga commodi quia.,False
+ALT-0007,device_sharing,2026-04-24 08:11:07,alta,Nam alias nemo.,True
+ALT-0008,velocity,2026-05-01 12:09:30,critica,Itaque molestias ea aliquid doloribus.,True
+ALT-0009,device_sharing,2026-04-24 15:01:34,critica,Consectetur libero eum exercitationem blanditiis est voluptatem.,False
+ALT-0010,geoloc_anomala,2026-04-20 20:01:50,baja,Ullam exercitationem doloribus ad.,True
+ALT-0011,fraude_confirmado,2026-04-13 22:54:23,alta,Ea veritatis laborum quas voluptatibus.,True
+ALT-0012,geoloc_anomala,2026-04-18 19:40:47,alta,Illum quidem facilis a quia odit accusamus quod.,False
+ALT-0013,fraude_confirmado,2026-04-19 21:36:13,baja,Dolorum cum quam.,False
+ALT-0014,device_sharing,2026-04-22 06:17:40,media,Cumque ea accusantium at corporis aspernatur porro.,True
+ALT-0015,fraude_confirmado,2026-04-17 04:25:09,critica,Placeat accusamus sequi fugiat.,False
+ALT-0016,fraude_confirmado,2026-04-29 02:07:17,baja,Quisquam voluptates eligendi.,True
+ALT-0017,geoloc_anomala,2026-04-21 06:38:35,baja,Totam natus placeat eveniet at architecto ex velit.,False
+ALT-0018,fraude_confirmado,2026-04-07 12:13:15,media,Commodi animi perferendis sed non a.,True
+ALT-0019,device_sharing,2026-04-04 15:40:04,alta,Reiciendis repellendus ducimus.,False
+ALT-0020,velocity,2026-04-23 00:55:39,baja,Voluptate maiores maxime exercitationem repellendus quibusdam.,True
+ALT-0021,velocity,2026-04-18 06:13:44,alta,Nemo dolorem unde vitae voluptate dolor.,False
+ALT-0022,velocity,2026-04-29 15:22:21,media,Repudiandae dolores ab repellendus reiciendis maxime.,False
+ALT-0023,geoloc_anomala,2026-04-11 14:33:49,alta,Odit deleniti vero nisi placeat cupiditate quasi placeat.,False
+ALT-0024,fraude_confirmado,2026-04-23 01:13:42,baja,Possimus tempore temporibus expedita ipsa suscipit.,False
+ALT-0025,geoloc_anomala,2026-04-27 08:28:08,alta,Accusamus aut culpa ea debitis.,False
+ALT-0026,fraude_confirmado,2026-04-30 07:51:16,critica,Illo ducimus nemo accusantium eos deserunt placeat.,True
+ALT-0027,velocity,2026-04-07 22:51:16,media,Illo itaque voluptates.,False
+ALT-0028,device_sharing,2026-04-14 04:45:15,alta,Nisi illo quis numquam debitis quos.,True
+ALT-0029,velocity,2026-04-28 23:18:28,alta,Eos reprehenderit maxime inventore saepe laborum.,False
+ALT-0030,device_sharing,2026-05-01 02:50:40,media,Ab blanditiis suscipit est ipsum.,True
+ALT-0031,geoloc_anomala,2026-04-27 17:31:57,media,Rem ipsum suscipit soluta dolor.,False
+ALT-0032,fraude_confirmado,2026-04-24 04:03:03,alta,Quis exercitationem aperiam reprehenderit veritatis perferendis.,False
+ALT-0033,geoloc_anomala,2026-04-08 22:27:36,critica,Et ex fugit itaque nisi.,False
+ALT-0034,velocity,2026-04-22 10:53:39,critica,Velit error earum.,False
+ALT-0035,velocity,2026-04-07 18:31:00,media,Porro dolores nulla eos.,True
+ALT-0036,velocity,2026-04-26 03:41:51,media,Dolorem voluptatibus doloremque aperiam ex.,True
+ALT-0037,geoloc_anomala,2026-04-18 10:33:17,media,Fugit amet labore vel nemo itaque doloremque.,True
+ALT-0038,velocity,2026-04-24 23:21:18,alta,Quas eaque aliquam qui.,True
+ALT-0039,geoloc_anomala,2026-04-16 06:57:12,alta,Ipsa natus facere fugit ducimus dolor distinctio.,True
+ALT-0040,fraude_confirmado,2026-04-19 08:20:17,critica,Debitis optio doloremque necessitatibus maiores magni placeat.,True
+ALT-0041,velocity,2026-04-04 15:49:52,baja,Dolor vitae vero amet aperiam nostrum molestiae quidem.,True
+ALT-0042,geoloc_anomala,2026-04-26 05:12:11,media,Iste doloremque nobis dicta aut.,True
+ALT-0043,fraude_confirmado,2026-04-27 19:45:53,critica,Aperiam nesciunt accusamus earum saepe.,True
+ALT-0044,device_sharing,2026-04-14 06:16:20,critica,Veritatis perspiciatis aliquam.,False
+ALT-0045,device_sharing,2026-04-30 22:35:04,baja,Optio recusandae sapiente eligendi ea.,False
+ALT-0046,device_sharing,2026-04-04 00:44:55,media,Praesentium nesciunt sed sequi qui.,False
+ALT-0047,velocity,2026-04-22 00:49:52,media,Earum ipsa eum quibusdam accusantium eveniet.,False
+ALT-0048,geoloc_anomala,2026-04-08 09:49:14,alta,Nemo deleniti assumenda ut.,True
+ALT-0049,fraude_confirmado,2026-04-26 20:05:17,media,Accusamus quae eligendi nisi explicabo tempora.,False

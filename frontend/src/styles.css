@@ -112,6 +112,18 @@ pre {
     rgba(255, 255, 255, 0.02);
 }
 .plain-list { padding-left: 18px; }
+.fraud-report {
+  margin-top: 18px;
+  padding: 18px;
+  border: 1px solid rgba(109, 211, 168, 0.28);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  white-space: pre-wrap;
+  line-height: 1.65;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 14px;
+}
 @media (max-width: 980px) {
   .app-shell { grid-template-columns: 1fr; }
   .sidebar { border-right: none; border-bottom: 1px solid var(--line); }

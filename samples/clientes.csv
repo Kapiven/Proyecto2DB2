@@ -1,3 +1,101 @@
 id,nombre,edad,genero,riesgo,nivel_riesgo,fecha_registro,email,telefono
-CLI-CSV-001,Ana López,31,F,0.31,Bajo,2025-02-10,ana@example.com,5555-1111
-CLI-CSV-002,Carlos Pérez,44,M,0.77,Alto,2024-11-21,carlos@example.com,5555-2222
+CLI-0000,Íñigo Humberto Peralta Muñoz,64,Femenino,10,Bajo,2025-03-23,celestinoromeu@example.net,+34822660945
+CLI-0001,Coral Figuerola-Ferrándiz,60,Masculino,7,Alto,2025-07-23,ramona48@example.net,+34 969 069 885
+CLI-0002,Toribio Robledo Segura,61,Femenino,5,Bajo,2025-05-03,rmoliner@example.org,+34845367119
+CLI-0003,José Manuel Duque-Conesa,22,Femenino,10,Medio,2025-06-08,consuelocuesta@example.org,+34 971678647
+CLI-0004,Eligia Alcalde Sanabria,27,Femenino,8,Alto,2025-02-27,pascuala07@example.com,+34607 92 47 77
+CLI-0005,Rubén del Armas,51,Femenino,4,Medio,2025-12-18,alejo78@example.com,+34886630219
+CLI-0006,Sarita Herranz Checa,45,Masculino,6,Bajo,2026-04-03,bbenavent@example.org,+34923 509 311
+CLI-0007,Dulce Pedrero Sureda,77,Masculino,3,Medio,2024-11-13,maristela45@example.net,+34 839 83 99 57
+CLI-0008,Ainoa del Zamora,19,Femenino,3,Alto,2024-09-23,chucho68@example.org,+34 880 04 19 27
+CLI-0009,Saturnino Reina Tello,33,Otro,5,Bajo,2025-04-13,tristanpareja@example.org,+34 822 931 180
+CLI-0010,Pilar Salinas Ramón,75,Femenino,8,Medio,2024-05-02,franciscopedrosa@example.com,+34800 467 567
+CLI-0011,Diego Roda González,45,Masculino,5,Bajo,2025-02-08,cirinoalbero@example.com,+34 843 16 79 31
+CLI-0012,Felicia Mancebo Prats,40,Otro,6,Alto,2025-07-15,saritamariscal@example.org,+34879 33 24 72
+CLI-0013,Odalys Pozo Casares,31,Otro,4,Bajo,2024-11-03,nieves74@example.org,+34 926053010
+CLI-0014,Vito Acedo Nebot,53,Masculino,6,Bajo,2026-03-27,wbaez@example.com,+34 920 807 283
+CLI-0015,Joaquín Donoso-Noriega,28,Masculino,8,Alto,2025-05-10,qpino@example.net,+34707 163 959
+CLI-0016,Lara Pavón Sala,57,Otro,7,Medio,2025-07-18,rosaliaalarcon@example.org,+34 980 23 55 27
+CLI-0017,Lola Menendez Llopis,76,Masculino,3,Medio,2024-06-02,cuencaambar@example.net,+34800190522
+CLI-0018,Eloy Barriga Carlos,21,Otro,6,Medio,2025-12-07,carroeusebio@example.com,+34 807443916
+CLI-0019,Reyna Pardo Padilla,67,Femenino,1,Medio,2026-03-12,cruzsantana@example.com,+34826659478
+CLI-0020,Marco García Bas,79,Otro,4,Medio,2025-07-23,sanzregina@example.org,+34 884 56 90 85
+CLI-0021,Esteban Nebot Mayol,34,Otro,6,Alto,2025-08-18,rosalvanarvaez@example.com,+34847630263
+CLI-0022,Alicia Fiol Larrea,51,Masculino,3,Alto,2025-10-17,esalmeron@example.net,+34884594855
+CLI-0023,Herberto Llorens Fuente,23,Masculino,7,Bajo,2024-06-01,teodosio44@example.net,+34973 222 922
+CLI-0024,Guillermo de Ibarra,59,Masculino,4,Medio,2026-03-05,noe07@example.com,+34822 800 374
+CLI-0025,María Luisa Morillo Santana,38,Otro,8,Bajo,2025-11-13,flloret@example.net,+34825 091 438
+CLI-0026,Imelda Griselda Iriarte Sobrino,38,Femenino,4,Alto,2025-01-17,teresaprado@example.com,+34975 868 836
+CLI-0027,Consuela Borrell Rubio,36,Otro,10,Medio,2026-03-30,ildefonsobarrios@example.org,+34982 86 72 00
+CLI-0028,Tomasa Rosado Ramón,63,Otro,10,Bajo,2024-11-29,maximilianoblazquez@example.com,+34 972122414
+CLI-0029,Mateo Guitart Miró,67,Masculino,3,Bajo,2025-04-16,galanvinicio@example.net,+34883 83 93 34
+CLI-0030,Manuel del Bonet,69,Masculino,8,Alto,2026-04-18,wtorrecilla@example.com,+34729704395
+CLI-0031,Alex Llano-Plana,32,Masculino,3,Bajo,2024-08-07,baudeliovilar@example.org,+34820 295 818
+CLI-0032,Nidia Iglesia Rius,29,Femenino,6,Medio,2025-01-24,yaiza70@example.org,+34 913432439
+CLI-0033,Cleto Benito Perez,38,Otro,8,Alto,2024-07-28,pmelero@example.net,+34 900524665
+CLI-0034,Bernardita Narcisa Guillen Bernal,31,Otro,7,Bajo,2025-08-19,xangel@example.net,+34949182815
+CLI-0035,María Blázquez Nuñez,71,Femenino,7,Alto,2024-09-24,epifanioraya@example.net,+34 872204143
+CLI-0036,Paola Cabrero Borrás,40,Femenino,7,Medio,2024-10-11,ruthbustos@example.org,+34 928159390
+CLI-0037,Claudio Aroca-Maza,34,Masculino,7,Medio,2025-06-23,ani29@example.org,+34 922 068 658
+CLI-0038,Román Valentín Rivas,20,Otro,10,Bajo,2026-03-17,felix87@example.com,+34820312216
+CLI-0039,Carmina Vidal Lastra,50,Otro,4,Alto,2025-04-23,pamaya@example.net,+34 824 10 40 98
+CLI-0040,Sebastian de Cuenca,41,Masculino,2,Alto,2024-08-25,maria-jesus79@example.net,+34 814 99 69 74
+CLI-0041,Martin Sanjuan Andrade,25,Masculino,4,Medio,2024-05-30,paco65@example.com,+34941 345 794
+CLI-0042,Julián Pozuelo Roma,31,Masculino,3,Bajo,2025-06-06,tecla02@example.org,+34 846837495
+CLI-0043,Inmaculada Segovia Coronado,33,Masculino,3,Medio,2025-05-20,oliverjacinta@example.net,+34 878161884
+CLI-0044,Xavier Ángel Pardo,66,Femenino,6,Medio,2026-02-03,delfina32@example.net,+34 949336178
+CLI-0045,Antonio Bermúdez Pereira,37,Otro,1,Medio,2024-07-03,gonzalocoello@example.org,+34 882174112
+CLI-0046,Teobaldo del Redondo,38,Femenino,4,Medio,2025-07-09,felipe70@example.com,+34 980 505 431
+CLI-0047,Abril Campo,23,Masculino,4,Medio,2025-05-03,nildadiaz@example.org,+34 887 08 68 67
+CLI-0048,Priscila Almeida Saez,70,Masculino,1,Bajo,2025-12-05,julio-cesarcompany@example.net,+34847 68 92 03
+CLI-0049,Matías del Oliva,66,Masculino,2,Alto,2025-10-27,juradoraquel@example.net,+34 978702848
+CLI-0050,Guiomar Alarcón Exposito,25,Masculino,1,Bajo,2024-07-09,bsosa@example.com,+34 947562946
+CLI-0051,Joaquina Vargas Urrutia,31,Femenino,3,Bajo,2025-11-06,gperal@example.net,+34900 671 842
+CLI-0052,Albert Ródenas,76,Masculino,5,Alto,2025-03-28,sarabialeocadia@example.net,+34977850506
+CLI-0053,Emiliano Ariño Aguilera,78,Masculino,7,Bajo,2026-02-21,armidaanglada@example.org,+34949 769 778
+CLI-0054,Gastón Aguilar Botella,21,Masculino,3,Medio,2026-02-18,leonardocolom@example.net,+34 949733606
+CLI-0055,Bruno Eugenio Noriega Fonseca,20,Masculino,7,Bajo,2025-03-03,gacevedo@example.net,+34 947994101
+CLI-0056,Eliana Valle,27,Femenino,5,Medio,2024-06-22,ncal@example.net,+34 882 13 70 44
+CLI-0057,Maricruz Ojeda Domínguez,80,Otro,3,Medio,2025-01-02,xvalenciano@example.com,+34 902 449 203
+CLI-0058,Abilio Morán Macias,74,Femenino,6,Alto,2024-09-25,llasa@example.com,+34 862 239 750
+CLI-0059,Demetrio Guitart Almagro,52,Masculino,8,Bajo,2024-05-15,manuela61@example.org,+34852124537
+CLI-0060,Chucho Aguilar,56,Femenino,1,Alto,2025-03-22,elucas@example.com,+34 900 560 290
+CLI-0061,Marisol Batlle Verdugo,56,Masculino,6,Medio,2024-08-10,hmachado@example.com,+34881 110 401
+CLI-0062,Tamara Cal Huertas,19,Otro,3,Medio,2026-01-22,jessicamir@example.net,+34 973 691 937
+CLI-0063,Gabriel Barreda Rivas,22,Masculino,1,Bajo,2024-08-08,pastor92@example.net,+34 817 29 79 33
+CLI-0064,Rita Navas Alberto,21,Femenino,7,Alto,2026-04-17,tadeo32@example.net,+34926 328 385
+CLI-0065,Armando del Borja,29,Otro,10,Bajo,2025-01-18,judithborras@example.net,+34822 321 980
+CLI-0066,Nico Matas,42,Masculino,4,Alto,2024-10-06,valeriagimenez@example.net,+34 928806356
+CLI-0067,Ignacia Gámez-Campoy,48,Otro,10,Alto,2024-09-19,fabricioarribas@example.com,+34925867214
+CLI-0068,Hugo de Cabezas,33,Femenino,1,Medio,2024-08-28,barojeremias@example.org,+34827 056 006
+CLI-0069,Gastón Espiridión Madrid Martin,63,Otro,7,Alto,2025-02-02,asuncion82@example.com,+34 928164607
+CLI-0070,Teodosio Pedraza Simó,69,Femenino,7,Medio,2024-12-17,ascension29@example.com,+34886876086
+CLI-0071,Yago Piña Tena,77,Otro,8,Alto,2025-10-19,flavio52@example.com,+34 882 833 089
+CLI-0072,Pancho Barbero-Aragonés,50,Masculino,1,Bajo,2025-01-20,karmengol@example.org,+34971 555 187
+CLI-0073,Florentino de Conde,80,Masculino,10,Alto,2025-02-04,reina55@example.org,+34 971 019 739
+CLI-0074,Gloria Rey-Madrid,26,Masculino,1,Alto,2025-05-20,anitaacuna@example.org,+34823 199 013
+CLI-0075,Juan Bautista Fortuny Echevarría,49,Otro,7,Medio,2025-03-11,cabanillasgabino@example.com,+34 972 11 62 97
+CLI-0076,Jaime González Escamilla,75,Otro,8,Alto,2025-04-09,salomonvelazquez@example.net,+34724018072
+CLI-0077,Ariadna Duran-Morata,18,Masculino,4,Bajo,2025-01-11,expositoconrado@example.org,+34952 33 68 49
+CLI-0078,Pacífica Barco Sainz,44,Masculino,8,Medio,2026-01-29,pascuala03@example.org,+34877 62 73 38
+CLI-0079,Dora Verdú,61,Otro,6,Medio,2024-10-21,eperea@example.net,+34843 396 797
+CLI-0080,Rosalía Peinado Jove,71,Masculino,8,Bajo,2024-11-30,imontes@example.com,+34924 98 18 36
+CLI-0081,Emiliano Soriano Duarte,44,Masculino,4,Bajo,2024-06-30,vmoreno@example.com,+34723 021 309
+CLI-0082,Dulce Juan Cepeda,48,Otro,2,Alto,2025-05-04,josefinaduarte@example.org,+34854 60 29 01
+CLI-0083,Chuy Espejo Raya,59,Masculino,5,Alto,2024-05-25,fioldani@example.com,+34942 50 78 58
+CLI-0084,Cayetano Robles,58,Masculino,5,Alto,2025-07-02,rolando42@example.com,+34 628541188
+CLI-0085,Milagros Corbacho Lago,22,Femenino,6,Bajo,2025-10-03,pguzman@example.com,+34 945 62 84 38
+CLI-0086,Celestina Vaquero Cid,54,Otro,5,Bajo,2024-08-25,rufino60@example.org,+34975 937 876
+CLI-0087,Alejandro Echevarría Alcázar,58,Femenino,7,Alto,2025-12-25,eulalia18@example.com,+34 984 80 97 08
+CLI-0088,Erasmo Nevado,43,Masculino,3,Bajo,2024-05-22,micaelaclemente@example.com,+34 887 709 000
+CLI-0089,Yaiza Expósito Yuste,38,Masculino,1,Bajo,2025-09-04,tanton@example.org,+34974471590
+CLI-0090,Paula de Ferrándiz,44,Masculino,1,Medio,2025-01-27,eutropio18@example.org,+34885 303 088
+CLI-0091,Anabel Ordóñez Almansa,68,Femenino,4,Bajo,2025-10-18,torrensnicodemo@example.net,+34 827586628
+CLI-0092,Ulises Sala,37,Otro,5,Bajo,2024-07-21,titopujadas@example.org,+34 855544787
+CLI-0093,Natividad Arias Adán,39,Femenino,5,Alto,2026-04-04,flavia55@example.com,+34 900 234 910
+CLI-0094,Teo Conesa,46,Otro,2,Alto,2025-06-20,morenacarpio@example.net,+34887 54 42 36
+CLI-0095,Darío Jordi Ribas Gibert,71,Femenino,8,Medio,2025-02-25,gtorrent@example.org,+34800 163 561
+CLI-0096,René Torrijos Escudero,42,Otro,4,Medio,2024-07-22,ana-sofia74@example.net,+34 800 10 21 00
+CLI-0097,Noa Llopis Viña,55,Femenino,1,Medio,2025-02-02,benetcarlito@example.com,+34 948096403
+CLI-0098,Encarnación Céspedes Melero,43,Otro,8,Bajo,2025-07-21,zacarias69@example.net,+34 882 885 082
+CLI-0099,Perlita Figueras Luz,49,Masculino,9,Medio,2024-06-06,tejeraflora@example.net,+34 887291102

@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte de Detección de Fraude</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header .timestamp {
+            opacity: 0.9;
+            font-size: 0.95em;
+        }
+        
+        .status-box {
+            padding: 20px;
+            margin: 20px;
+            border-radius: 8px;
+            border-left: 5px solid;
+            background: #f8f9fa;
+        }
+        
+        .status-box.medio {
+            border-left-color: #ffc107;
+            background: #fff3cd;
+        }
+        
+        .status-box.alto {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+        }
+        
+        .status-box.bajo {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+        
+        .status-box h2 {
+            margin-bottom: 10px;
+            font-size: 1.8em;
+        }
+        
+        .status-box .value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        
+        .stat-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        
+        .stat-card.risk-low {
+            border-left: 4px solid #28a745;
+        }
+        
+        .stat-card.risk-medium {
+            border-left: 4px solid #ffc107;
+        }
+        
+        .stat-card.risk-high {
+            border-left: 4px solid #dc3545;
+        }
+        
+        .stat-card .number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 15px 0;
+        }
+        
+        .stat-card .label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .stat-card .description {
+            font-size: 0.9em;
+            color: #666;
+            margin: 10px 0;
+            line-height: 1.4;
+        }
+        
+        .stat-card .meaning {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            color: #555;
+            margin-top: 10px;
+            line-height: 1.4;
+            font-style: italic;
+        }
+        
+        .stat-card .risk-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        
+        .risk-badge.low {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .risk-badge.medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .risk-badge.high {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .alerts-section {
+            padding: 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .alerts-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .alert-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid #ffc107;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .alert-item:before {
+            content: "⚠️";
+            margin-right: 15px;
+            font-size: 1.5em;
+        }
+        
+        .recommendations-section {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .recommendations-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .recommendation {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            color: #1565c0;
+        }
+        
+        .next-steps {
+            padding: 20px;
+            background: #f0f7ff;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .next-steps h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .step {
+            counter-increment: step-counter;
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .step::before {
+            content: counter(step-counter);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            margin-right: 12px;
+            font-weight: bold;
+        }
+        
+        body {
+            counter-reset: step-counter;
+        }
+        
+        .footer {
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #e0e0e0;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 REPORTE DE DETECCIÓN DE FRAUDE</h1>
+            <div class="timestamp">Análisis realizado: 02 de mayo de 2026 a las 19:06</div>
+        </div>
+        
+        <div class="status-box medio">
+            <h2>Estado General: MEDIO - Revisar</h2>
+            <div class="value">2 Alertas Detectadas</div>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card risk-low">
+                <div class="label">Transacciones Rápidas (Burst)</div>
+                <div class="number">0</div>
+                <div class="description">Múltiples transacciones en una ventana de 10 minutos</div>
+                <div class="meaning">Múltiples movimientos de dinero en muy poco tiempo podría indicar fraude automatizado o lavado de dinero</div>
+                <div class="risk-badge low">Bajo</div>
+            </div>
+            
+            <div class="stat-card risk-low">
+                <div class="label">Cambios de Ubicación</div>
+                <div class="number">0</div>
+                <div class="description">Cambio brusco de ubicación en menos de 30 minutos</div>
+                <div class="meaning">Una persona no puede estar en dos países en 30 minutos. Si sucede, la tarjeta podría estar siendo usada fraudulentamente</div>
+                <div class="risk-badge low">Bajo</div>
+            </div>
+            
+            <div class="stat-card risk-medium">
+                <div class="label">Dispositivos Compartidos</div>
+                <div class="number">1</div>
+                <div class="description">Dispositivo compartido entre múltiples clientes</div>
+                <div class="meaning">El mismo dispositivo utilizado por múltiples clientes es inusual y puede indicar actividad fraudulenta coordinada</div>
+                <div class="risk-badge medium">Medio</div>
+            </div>
+            
+            <div class="stat-card risk-high">
+                <div class="label">Comercios de Alto Riesgo</div>
+                <div class="number">1</div>
+                <div class="description">Transacciones en comercios con alto perfil de riesgo</div>
+                <div class="meaning">Transacciones en establecimientos conocidos por alto riesgo de fraude (casinos online, criptomonedas, etc)</div>
+                <div class="risk-badge high">Alto</div>
+            </div>
+        </div>
+        
+        <div class="alerts-section">
+            <h3>📋 Alertas Detectadas</h3>
+            <div class="alert-item">
+                Se detectó 1 transacción con dispositivo compartido entre clientes
+            </div>
+            <div class="alert-item">
+                Se detectó 1 transacción en comercio de alto riesgo
+            </div>
+        </div>
+        
+        <div class="recommendations-section">
+            <h3>💡 Recomendaciones</h3>
+            <div class="recommendation">
+                REVISAR CUENTA: Un dispositivo compartido por múltiples clientes es sospechoso
+            </div>
+            <div class="recommendation">
+                MONITOREAR: Transacciones en comercios de alto riesgo requieren atención
+            </div>
+        </div>
+        
+        <div class="next-steps">
+            <h3>📌 Próximos Pasos</h3>
+            <div class="step">Contactar cliente para verificación</div>
+            <div class="step">Revisar historial de transacciones</div>
+            <div class="step">Escalar a equipo de fraude si es necesario</div>
+        </div>
+        
+        <div class="footer">
+            <strong>Sistema de Detección Heurística de Fraude</strong> | Análisis automático basado en 4 reglas de detección
+        </div>
+    </div>
+</body>
+</html>

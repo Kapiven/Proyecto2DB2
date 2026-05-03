@@ -1,21 +1,23 @@
 <template>
   <section class="content-grid">
     <div class="section-panel">
-      <p class="eyebrow">Reglas automáticas</p>
-      <h3>Motor heurístico</h3>
+      <p class="eyebrow">Reglas automaticas</p>
+      <h3>Motor heuristico</h3>
       <p class="status-text" v-if="errorMessage">{{ errorMessage }}</p>
       <ul class="plain-list">
         <li v-for="rule in rules" :key="rule">{{ rule }}</li>
       </ul>
-      <button class="primary-button" @click="runDetection">Ejecutar detección</button>
-      <pre>{{ detectionResult }}</pre>
+      <button class="primary-button" @click="runDetection">Ejecutar deteccion real</button>
+      <article v-if="detectionResult" class="fraud-report">
+        {{ detectionResult }}
+      </article>
     </div>
 
     <div class="section-panel">
       <div class="section-header">
         <div>
           <p class="eyebrow">Cypher</p>
-          <h3>Consultas de demostración</h3>
+          <h3>Consultas de demostracion</h3>
         </div>
         <button class="secondary-button" @click="loadQueries">Recargar</button>
       </div>
@@ -61,11 +63,13 @@ async function loadQueries() {
 
 async function runDetection() {
   errorMessage.value = "";
+  detectionResult.value = "";
   try {
-    const { data } = await api.post("/fraud/detect/");
-    detectionResult.value = JSON.stringify(data, null, 2);
+    const { data } = await api.post("/fraud/detect/?report=text", null, {
+      responseType: "text"
+    });
+    detectionResult.value = data;
   } catch (error) {
-    detectionResult.value = "";
     errorMessage.value = formatApiError(error);
   }
 }

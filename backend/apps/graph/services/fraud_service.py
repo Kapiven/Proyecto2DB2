@@ -18,12 +18,52 @@ class FraudDetectionService:
         ]
 
     def detect(self):
+        burst_txns = self._flag_burst_transactions()
+        location_jumps = self._flag_location_jumps()
+        shared_devices = self._flag_shared_devices()
+        high_risk_commerce = self._flag_high_risk_commerce()
+        
         return {
-            "transacciones_rapidas": self._flag_burst_transactions(),
-            "cambio_ubicacion": self._flag_location_jumps(),
-            "dispositivo_compartido": self._flag_shared_devices(),
-            "comercio_alto_riesgo": self._flag_high_risk_commerce(),
+            "transacciones_rapidas": {
+                "cantidad_detectadas": burst_txns,
+                "descripcion": "Múltiples transacciones en una ventana de 10 minutos",
+                "riesgo": "Alto" if burst_txns > 0 else "Bajo"
+            },
+            "cambio_ubicacion": {
+                "cantidad_detectadas": location_jumps,
+                "descripcion": "Cambio brusco de ubicación en menos de 30 minutos",
+                "riesgo": "Alto" if location_jumps > 0 else "Bajo"
+            },
+            "dispositivo_compartido": {
+                "cantidad_detectadas": shared_devices,
+                "descripcion": "Dispositivo compartido entre múltiples clientes",
+                "riesgo": "Medio" if shared_devices > 0 else "Bajo"
+            },
+            "comercio_alto_riesgo": {
+                "cantidad_detectadas": high_risk_commerce,
+                "descripcion": "Transacciones en comercios con alto perfil de riesgo",
+                "riesgo": "Alto" if high_risk_commerce > 0 else "Bajo"
+            },
+            "total_alertas": burst_txns + location_jumps + shared_devices + high_risk_commerce,
+            "resumen": self._generate_summary(burst_txns, location_jumps, shared_devices, high_risk_commerce)
         }
+    
+    def _generate_summary(self, burst, location, shared, commerce):
+        """Genera un resumen legible de los resultados."""
+        alerts = []
+        if burst > 0:
+            alerts.append(f" Se detectaron {burst} transacción(es) rápida(s): múltiples movimientos en 10 minutos")
+        if location > 0:
+            alerts.append(f"Se detectaron {location} cambio(s) de ubicación sospechoso(s): movimientos geográficos imposibles")
+        if shared > 0:
+            alerts.append(f" Se detectaron {shared} transacción(es) con dispositivo compartido entre clientes")
+        if commerce > 0:
+            alerts.append(f" Se detectaron {commerce} transacción(es) en comercio(s) de alto riesgo")
+        
+        if not alerts:
+            return " Sin alertas detectadas en este ciclo de detección"
+        
+        return "\n".join(alerts)
 
     def _flag_burst_transactions(self):
         query = """
@@ -71,7 +111,7 @@ class FraudDetectionService:
             WITH t
             MERGE (a:Alerta {id: 'AUTO-' + t.id})
             SET a.tipo_alerta = 'Comercio de alto riesgo',
-                a.fecha = datetime().toString(),
+                a.fecha = datetime(),
                 a.severidad = 'Alta',
                 a.descripcion = 'La transacción ocurrió en un comercio riesgoso',
                 a.resuelta = false

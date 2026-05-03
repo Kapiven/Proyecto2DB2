@@ -78,7 +78,21 @@ class Neo4jRepository:
     @staticmethod
     def _run_query(tx, query: str, parameters: dict[str, Any]) -> list[dict[str, Any]]:
         result = tx.run(query, parameters)
-        return [record.data() for record in result]
+        return [Neo4jRepository._json_safe(record.data()) for record in result]
+
+    @staticmethod
+    def _json_safe(value: Any) -> Any:
+        """Convierte valores del driver Neo4j a tipos serializables por JSON."""
+        if isinstance(value, dict):
+            return {
+                key: Neo4jRepository._json_safe(item)
+                for key, item in value.items()
+            }
+        if isinstance(value, (list, tuple)):
+            return [Neo4jRepository._json_safe(item) for item in value]
+        if hasattr(value, "iso_format"):
+            return value.iso_format()
+        return value
 
     def run_with_handler(self, handler: Callable) -> Any:
         with self.driver.session(database=self.database) as session:

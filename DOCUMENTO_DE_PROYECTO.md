@@ -134,3 +134,57 @@ El diagrama base del grafo de fraude está disponible en el archivo `Cliente Ris
 - `POST /api/relationships/properties/batch/` - Asigna o actualiza propiedades en múltiples relaciones.
 - `DELETE /api/relationships/properties/batch/` - Elimina propiedades de múltiples relaciones.
 - `POST /api/relationships/delete/` - Elimina múltiples relaciones.
+
+## Motor Heurístico de Detección de Fraude (Completamente Funcional)
+
+El motor de fraude implementa 4 reglas heurísticas que se ejecutan automáticamente al llamar a `POST /api/fraud/detect/`.
+
+### Reglas Implementadas
+
+1. **Transacciones Rápidas (Burst)** - Detecta 2+ transacciones en una ventana de 10 minutos
+2. **Cambios Sospechosos de Ubicación** - Identifica transacciones en países diferentes en menos de 30 minutos
+3. **Dispositivos Compartidos** - Flagea cuando el mismo dispositivo es usado por múltiples clientes
+4. **Comercios de Alto Riesgo** - Marca transacciones en comercios con riesgo >= 8
+
+### Arquitectura
+
+- **Servicio**: `backend/apps/graph/services/fraud_service.py` - Motor de detección
+- **Vistas**: `backend/apps/graph/views/fraud_views.py` - Endpoint REST
+- **Base de Datos**: Neo4j AuraDB con consultas Cypher optimizadas
+- **Respuesta**: JSON estructurado legible para usuarios no técnicos
+
+### Estructura de Respuesta Mejorada
+
+La respuesta incluye:
+- **Reporte**: Título, fecha, estado general (BAJO/MEDIO/ALTO), total de alertas
+- **Resumen**: Explicación ejecutiva legible en español
+- **Detalle de Reglas**: Para cada regla: casos detectados, definición técnica, explicación para no técnicos, nivel de riesgo
+- **Recomendaciones**: Acciones sugeridas basadas en alertas
+- **Próximos Pasos**: Flujo de escalación ordenado
+
+### Ejemplo de Uso
+
+```bash
+curl -X POST http://127.0.0.1:8000/api/fraud/detect/
+```
+
+Respuesta esperada (con alertas):
+```json
+{
+  "reporte": {
+    "titulo": "REPORTE DE DETECCION DE FRAUDE",
+    "fecha_analisis": "2026-05-02T19:06:39.828817",
+    "estado_general": "MEDIO - Revisar",
+    "total_alertas_detectadas": 2
+  },
+  "resumen": "⚠️ Se detectaron 1 transacción con dispositivo compartido...",
+  "detalle_reglas": { ... },
+  "recomendaciones": [ ... ],
+  "proximos_pasos": [ ... ]
+}
+```
+
+### Documentación Completa
+
+Ver [FRAUD_ENGINE_RESPONSE.md](FRAUD_ENGINE_RESPONSE.md) para ejemplos detallados y guía de integración.
+Ver [frontend/fraude_report_ejemplo.html](frontend/fraude_report_ejemplo.html) para visualización de ejemplo en HTML.

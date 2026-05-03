@@ -1,5 +1,8 @@
 """Definición del esquema de negocio y consultas demo."""
 
+# Tipos de datos utilizados en el esquema:
+# String, Integer, Float, Boolean, Date, DateTime, List<String>
+
 NODE_SCHEMAS = {
     "Cliente": ["id", "nombre", "edad", "genero", "riesgo", "nivel_riesgo", "fecha_registro", "email", "telefono"],
     "Cuenta": ["id", "saldo", "tipo", "estado", "fecha_apertura", "limite_credito"],
@@ -10,6 +13,48 @@ NODE_SCHEMAS = {
     "Comercio": ["id", "nombre", "categoria", "riesgo", "ciudad"],
     "Banco": ["id", "nombre", "codigo", "ciudad", "tipo", "riesgo", "nivel_riesgo"],
     "Alerta": ["id", "tipo_alerta", "fecha", "severidad", "descripcion", "resuelta"],
+}
+
+# Tipos de datos detallados por propiedad:
+NODE_PROPERTY_TYPES = {
+    "Cliente": {
+        "id": "String", "nombre": "String", "edad": "Integer", "genero": "String",
+        "riesgo": "Integer", "nivel_riesgo": "String", "fecha_registro": "Date",
+        "email": "String", "telefono": "String"
+    },
+    "Cuenta": {
+        "id": "String", "saldo": "Float", "tipo": "String", "estado": "String",
+        "fecha_apertura": "Date", "limite_credito": "Float"
+    },
+    "Tarjeta": {
+        "id": "String", "numero": "String", "tipo": "String", "estado": "String",
+        "fecha_expiracion": "Date", "limite": "Float"
+    },
+    "Transaccion": {
+        "id": "String", "monto": "Float", "fecha": "DateTime", "tipo": "String",
+        "fraudulenta": "Boolean", "estado": "String", "canal": "String",
+        "razones_sospecha": "List<String>"  # Lista de razones por las que se sospecha fraude
+    },
+    "Dispositivo": {
+        "id": "String", "tipo": "String", "ip_address": "String", "user_agent": "String",
+        "ultima_conexion": "DateTime"
+    },
+    "Ubicacion": {
+        "id": "String", "latitud": "Float", "longitud": "Float", "ciudad": "String",
+        "pais": "String", "direccion": "String"
+    },
+    "Comercio": {
+        "id": "String", "nombre": "String", "categoria": "String", "riesgo": "Integer",
+        "ciudad": "String"
+    },
+    "Banco": {
+        "id": "String", "nombre": "String", "codigo": "String", "ciudad": "String",
+        "tipo": "String", "riesgo": "Integer", "nivel_riesgo": "String"
+    },
+    "Alerta": {
+        "id": "String", "tipo_alerta": "String", "fecha": "DateTime", "severidad": "String",
+        "descripcion": "String", "resuelta": "Boolean"
+    },
 }
 
 RELATIONSHIP_SCHEMAS = {
@@ -42,6 +87,17 @@ DEMO_QUERIES = [
         "cypher": """
             MATCH (c:Cliente)-[:TIENE_CUENTA]->(:Cuenta)-[:ORIGINA]->(:Transaccion)-[:GENERA_ALERTA]->(a:Alerta)
             RETURN c.id AS cliente_id, c.nombre AS cliente, count(a) AS total_alertas
+            ORDER BY total_alertas DESC LIMIT 10
+        """,
+    },
+    {
+        "name": "Cuentas conectadas a fraudes confirmados",
+        "cypher": """
+            MATCH (cu:Cuenta)-[:ORIGINA]->(t:Transaccion)-[:GENERA_ALERTA]->(a:Alerta)
+            WHERE t.fraudulenta = true OR t:Sospechosa OR t:Fraudulenta
+            RETURN cu.id AS cuenta_id, cu.saldo AS saldo_actual, cu.estado AS estado_cuenta,
+                   count(DISTINCT a) AS total_alertas, count(DISTINCT t) AS transacciones_sospechosas,
+                   sum(t.monto) AS monto_total_sospechoso
             ORDER BY total_alertas DESC LIMIT 10
         """,
     },
