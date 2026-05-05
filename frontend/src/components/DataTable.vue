@@ -1,5 +1,6 @@
 <template>
-  <div class="table-shell">
+  <p v-if="!rows.length" class="status-text">Sin resultados para mostrar.</p>
+  <div v-else class="table-shell">
     <table>
       <thead>
         <tr>

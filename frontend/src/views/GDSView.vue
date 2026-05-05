@@ -5,7 +5,8 @@
       <h3>Gestión del grafo proyectado</h3>
       <div class="form-grid">
         <button class="primary-button" @click="projectGraph">Project Graph</button>
-        <button class="secondary-button" @click="checkGraphExists">Verificar proyección</button>
+        <button class="secondary-button" @click="checkGraphExists">Verificar proyeccion</button>
+        <button class="secondary-button" @click="loadStatus">Estado Aura GDS</button>
         <button class="secondary-button" @click="dropGraph">Eliminar proyección</button>
       </div>
       <pre>{{ JSON.stringify(graphStatus, null, 2) }}</pre>
@@ -61,6 +62,9 @@ function setResult(data) {
   resultMeta.value = {
     algorithm: data.algorithm || null,
     graphName: data.graphName || null,
+    used_gds: data.used_gds,
+    fallback: data.fallback,
+    gds_error: data.gds_error || null,
     total: Array.isArray(data.results) ? data.results.length : null
   };
   resultRows.value = Array.isArray(data.results) ? data.results : [];
@@ -73,7 +77,17 @@ function setError(error) {
 async function checkGraphExists() {
   errorMessage.value = "";
   try {
-    const { data } = await api.post("/gds/exists/");
+    const { data } = await api.get("/gds/exists/");
+    graphStatus.value = data;
+  } catch (error) {
+    setError(error);
+  }
+}
+
+async function loadStatus() {
+  errorMessage.value = "";
+  try {
+    const { data } = await api.get("/gds/status/");
     graphStatus.value = data;
   } catch (error) {
     setError(error);

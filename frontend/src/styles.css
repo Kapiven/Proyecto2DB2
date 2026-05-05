@@ -36,7 +36,7 @@ button, input, textarea, select { font: inherit; }
 .hero-panel, .section-panel, .kpi-card, .aggregation-card {
   background: var(--panel);
   border: 1px solid var(--line);
-  border-radius: 22px;
+  border-radius: 8px;
   padding: 22px;
   backdrop-filter: blur(18px);
 }
@@ -52,7 +52,7 @@ button, input, textarea, select { font: inherit; }
 .nav-link {
   padding: 12px 14px;
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 8px;
   color: var(--text);
   text-decoration: none;
   background: rgba(255, 255, 255, 0.02);
@@ -71,7 +71,7 @@ input, textarea, select {
   width: 100%;
   padding: 12px 14px;
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.03);
   color: var(--text);
 }
@@ -103,6 +103,62 @@ pre {
 }
 .aggregation-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
 .query-card { padding: 18px 0; border-top: 1px solid var(--line); }
+.query-header { align-items: center; }
+.query-header h4 { margin: 0 0 6px; }
+.query-header p { margin: 0; }
+.fraud-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin: 16px 0;
+}
+.fraud-summary div,
+.rule-item {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.03);
+}
+.fraud-summary span {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.fraud-summary strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 26px;
+  text-transform: capitalize;
+}
+.rule-catalog {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+.rule-item p { margin: 8px 0 0; }
+.fraud-rule-card .table-shell { margin-top: 12px; }
+.rule-count {
+  min-width: 54px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(109, 211, 168, 0.14);
+  color: var(--accent);
+  text-align: center;
+  font-size: 24px;
+}
+.cypher-details {
+  margin-top: 14px;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+.cypher-details summary {
+  cursor: pointer;
+  color: var(--accent-strong);
+  font-weight: 700;
+}
+.cypher-details pre { margin-top: 12px; }
 .graph-canvas {
   width: 100%;
   min-height: 560px;
