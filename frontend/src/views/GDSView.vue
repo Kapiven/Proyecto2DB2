@@ -6,7 +6,7 @@
       <div class="form-grid">
         <button class="primary-button" @click="projectGraph">Project Graph</button>
         <button class="secondary-button" @click="checkGraphExists">Verificar proyeccion</button>
-        <button class="secondary-button" @click="loadStatus">Estado Aura GDS</button>
+        <button class="secondary-button" @click="loadStatus">GDS status</button>
         <button class="secondary-button" @click="dropGraph">Eliminar proyección</button>
       </div>
       <pre>{{ JSON.stringify(graphStatus, null, 2) }}</pre>
@@ -65,9 +65,9 @@ function setResult(data) {
     used_gds: data.used_gds,
     fallback: data.fallback,
     gds_error: data.gds_error || null,
-    total: Array.isArray(data.results) ? data.results.length : null
+    total: Array.isArray(data.data || data.results) ? (data.data || data.results).length : null
   };
-  resultRows.value = Array.isArray(data.results) ? data.results : [];
+  resultRows.value = Array.isArray(data.data || data.results) ? (data.data || data.results) : [];
 }
 
 function setError(error) {

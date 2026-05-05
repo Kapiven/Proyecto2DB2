@@ -26,7 +26,7 @@ class GDSBaseView(APIView):
         trazas o errores HTML del servidor.
         """
         return Response(
-            {"detail": str(exc), "used_gds": False, "fallback": True},
+            {"detail": str(exc), "used_gds": False, "fallback": True, "data": [], "results": []},
             status=status.HTTP_200_OK,
         )
 
@@ -42,7 +42,7 @@ class GDSProjectView(GDSBaseView):
 
 
 class GDSStatusView(GDSBaseView):
-    """Estado de sesion, proyeccion y esquema real."""
+    """Estado de GDS, proyeccion y esquema real."""
 
     def get(self, request):
         try:
@@ -108,7 +108,7 @@ class GDSSimilarityView(GDSBaseView):
 
 
 class GDSShortestPathView(GDSBaseView):
-    """Ejecuta Dijkstra entre dos clientes y devuelve costo/ruta."""
+    """Ejecuta shortestPath Cypher entre dos clientes y devuelve costo/ruta."""
 
     def post(self, request):
         serializer = GDSShortestPathSerializer(data=request.data)
