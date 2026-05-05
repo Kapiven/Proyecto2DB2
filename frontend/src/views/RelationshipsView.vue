@@ -5,10 +5,16 @@
         <div>
           <p class="eyebrow">CRUD de relaciones</p>
           <h3>Explorar y crear enlaces</h3>
+          <p class="status-text" v-if="!isLoading && !errorMessage">
+            Total relaciones: {{ relationships.length }}
+          </p>
         </div>
         <button class="secondary-button" @click="loadRelationships">Refrescar</button>
       </div>
-      <DataTable :rows="relationships" />
+      <p v-if="isLoading" class="status-text">Cargando relaciones...</p>
+      <p v-else-if="errorMessage" class="status-text">{{ errorMessage }}</p>
+      <p v-else-if="relationships.length === 0" class="status-text">No relationships found</p>
+      <DataTable v-else :rows="relationships" />
     </div>
 
     <div class="section-panel">
@@ -71,6 +77,8 @@ import { formatApiError } from "../utils/apiError";
 import DataTable from "../components/DataTable.vue";
 
 const relationships = ref([]);
+const errorMessage = ref("");
+const isLoading = ref(false);
 const createMessage = ref("");
 const batchMessage = ref("");
 const form = reactive({
@@ -101,12 +109,16 @@ const batchDeleteForm = reactive({
 });
 
 async function loadRelationships() {
-  message.value = "";
+  errorMessage.value = "";
+  isLoading.value = true;
   try {
     const { data } = await api.get("/relationships/");
-    relationships.value = data;
+    relationships.value = Array.isArray(data) ? data : data?.results || data?.relationships || [];
   } catch (error) {
-    message.value = formatApiError(error);
+    relationships.value = [];
+    errorMessage.value = `No se pudieron cargar las relaciones. ${formatApiError(error)}`;
+  } finally {
+    isLoading.value = false;
   }
 }
 
