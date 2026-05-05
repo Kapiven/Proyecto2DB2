@@ -30,8 +30,12 @@ class AnalyticsService:
         queries = {
             "riesgo_por_banco": """
                 MATCH (:Cuenta)-[:PERTENECE_A]->(b:Banco)
-                RETURN b.nombre AS banco, round(avg(b.riesgo), 2) AS riesgo_promedio, count(*) AS cuentas
-                ORDER BY riesgo_promedio DESC
+                RETURN
+                    b.nombre AS banco,
+                    count(*) AS cuentas,
+                    sum(CASE WHEN b.riesgo = true THEN 1 ELSE 0 END) AS cuentas_en_banco_riesgoso,
+                    round(100.0 * sum(CASE WHEN b.riesgo = true THEN 1 ELSE 0 END) / count(*), 2) AS porcentaje_riesgo
+                ORDER BY porcentaje_riesgo DESC
             """,
             "monto_por_canal": """
                 MATCH (t:Transaccion)
@@ -49,7 +53,17 @@ class AnalyticsService:
                 ORDER BY total DESC
             """,
         }
-        return {name: self.repository.execute_read(query) for name, query in queries.items()}
+        results = {}
+        for name, query in queries.items():
+            try:
+                results[name] = self.repository.execute_read(query)
+            except Exception as exc:
+                results[name] = {
+                    "error": True,
+                    "message": str(exc),
+                    "results": [],
+                }
+        return results
 
     def graph_snapshot(self):
         query = """
