@@ -26,8 +26,8 @@ class GDSBaseView(APIView):
         trazas o errores HTML del servidor.
         """
         return Response(
-            {"detail": str(exc)},
-            status=status.HTTP_400_BAD_REQUEST,
+            {"detail": str(exc), "used_gds": False, "fallback": True},
+            status=status.HTTP_200_OK,
         )
 
 
@@ -41,8 +41,24 @@ class GDSProjectView(GDSBaseView):
             return self.handle_service_error(exc)
 
 
+class GDSStatusView(GDSBaseView):
+    """Estado de sesion, proyeccion y esquema real."""
+
+    def get(self, request):
+        try:
+            return Response(self.service.status())
+        except Exception as exc:
+            return self.handle_service_error(exc)
+
+
 class GDSExistsView(GDSBaseView):
     """Informa si `fraudGraph` ya existe en memoria."""
+
+    def get(self, request):
+        try:
+            return Response(self.service.graph_exists())
+        except Exception as exc:
+            return self.handle_service_error(exc)
 
     def post(self, request):
         try:

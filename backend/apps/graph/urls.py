@@ -3,7 +3,7 @@
 from django.urls import path
 
 from .views.analytics_views import AggregationView, DashboardView, DemoQueriesView, GraphSnapshotView
-from .views.fraud_views import DetectFraudView, FraudRulesView
+from .views.fraud_views import DetectFraudView, FraudRulesView, RunFraudDetectionView
 from .views.gds_views import (
     GDSDropView,
     GDSExecutionView,
@@ -13,7 +13,9 @@ from .views.gds_views import (
     GDSProjectView,
     GDSSimilarityView,
     GDSShortestPathView,
+    GDSStatusView,
 )
+
 from .views.ingestion_views import CSVUploadView, FakeDataGenerationView, SchemaBootstrapView
 from .views.node_views import (
     DynamicLabelView,
@@ -50,10 +52,12 @@ urlpatterns = [
     path("generate/fake-data/", FakeDataGenerationView.as_view(), name="fake-data"),
     path("fraud/rules/", FraudRulesView.as_view(), name="fraud-rules"),
     path("fraud/detect/", DetectFraudView.as_view(), name="fraud-detect"),
+    path("fraud/run-detection/", RunFraudDetectionView.as_view(), name="fraud-run-detection"),
     path("analytics/aggregations/", AggregationView.as_view(), name="aggregations"),
     path("analytics/demo-queries/", DemoQueriesView.as_view(), name="demo-queries"),
     path("analytics/graph-snapshot/", GraphSnapshotView.as_view(), name="graph-snapshot"),
     path("gds/project/", GDSProjectView.as_view(), name="gds-project"),
+    path("gds/status/", GDSStatusView.as_view(), name="gds-status"),
     path("gds/exists/", GDSExistsView.as_view(), name="gds-exists"),
     path("gds/drop/", GDSDropView.as_view(), name="gds-drop"),
     path("gds/pagerank/", GDSPagerankView.as_view(), name="gds-pagerank"),

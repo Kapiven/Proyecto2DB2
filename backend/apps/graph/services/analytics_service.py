@@ -4,6 +4,7 @@ from .neo4j_service import Neo4jRepository
 from ..utils.schema import DEMO_QUERIES
 
 
+
 class AnalyticsService:
     """Agrupa consultas analíticas de lectura."""
 
@@ -82,5 +83,10 @@ class AnalyticsService:
                 data = self.repository.execute_read(item["cypher"])
             except Exception as exc:
                 data = [{"error": str(exc)}]
-            results.append({"name": item["name"], "cypher": item["cypher"].strip(), "results": data[:20]})
+            results.append({
+                "name": item["name"],
+                "description": item.get("description", ""),
+                "cypher": item["cypher"].strip(),
+                "results": data[:20],
+            })
         return results

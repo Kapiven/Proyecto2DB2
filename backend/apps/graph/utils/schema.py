@@ -10,7 +10,7 @@ NODE_SCHEMAS = {
     "Transaccion": ["id", "monto", "fecha", "tipo", "fraudulenta", "estado", "canal", "razones_sospecha"],
     "Dispositivo": ["id", "tipo", "ip_address", "user_agent", "ultima_conexion"],
     "Ubicacion": ["id", "latitud", "longitud", "ciudad", "pais", "direccion"],
-    "Comercio": ["id", "nombre", "categoria", "riesgo", "ciudad"],
+    "Comercio": ["id", "nombre", "categoria", "riesgo", "riesgo_score", "ciudad"],
     "Banco": ["id", "nombre", "codigo", "ciudad", "tipo", "riesgo", "nivel_riesgo"],
     "Alerta": ["id", "tipo_alerta", "fecha", "severidad", "descripcion", "resuelta"],
 }
@@ -44,8 +44,8 @@ NODE_PROPERTY_TYPES = {
         "pais": "String", "direccion": "String"
     },
     "Comercio": {
-        "id": "String", "nombre": "String", "categoria": "String", "riesgo": "Integer",
-        "ciudad": "String"
+        "id": "String", "nombre": "String", "categoria": "String", "riesgo": "Boolean",
+        "riesgo_score": "Integer", "ciudad": "String"
     },
     "Banco": {
         "id": "String", "nombre": "String", "codigo": "String", "ciudad": "String",
@@ -84,6 +84,7 @@ DYNAMIC_LABELS = {
 DEMO_QUERIES = [
     {
         "name": "Clientes con más alertas",
+        "description": "Identifica clientes con mayor volumen de alertas generadas.",
         "cypher": """
             MATCH (c:Cliente)-[:TIENE_CUENTA]->(:Cuenta)-[:ORIGINA]->(:Transaccion)-[:GENERA_ALERTA]->(a:Alerta)
             RETURN c.id AS cliente_id, c.nombre AS cliente, count(a) AS total_alertas
@@ -92,6 +93,7 @@ DEMO_QUERIES = [
     },
     {
         "name": "Cuentas conectadas a fraudes confirmados",
+        "description": "Muestra cuentas con transacciones sospechosas o fraudulentas.",
         "cypher": """
             MATCH (cu:Cuenta)-[:ORIGINA]->(t:Transaccion)-[:GENERA_ALERTA]->(a:Alerta)
             WHERE t.fraudulenta = true OR t:Sospechosa OR t:Fraudulenta
@@ -103,15 +105,17 @@ DEMO_QUERIES = [
     },
     {
         "name": "Comercios de alto riesgo con mayor volumen",
+        "description": "Agrupa transacciones en comercios marcados con riesgo=true o etiqueta AltoRiesgo.",
         "cypher": """
             MATCH (:Transaccion)-[:EN_COMERCIO]->(m:Comercio)
-            WHERE m.riesgo >= 7 OR m:AltoRiesgo
+            WHERE m.riesgo = true OR m:AltoRiesgo
             RETURN m.nombre AS comercio, m.categoria AS categoria, count(*) AS transacciones
             ORDER BY transacciones DESC LIMIT 10
         """,
     },
     {
         "name": "Dispositivos compartidos por múltiples clientes",
+        "description": "Lista dispositivos usados por mas de un cliente.",
         "cypher": """
             MATCH (c:Cliente)-[:USA_DISPOSITIVO]->(d:Dispositivo)
             WITH d, count(DISTINCT c.id) AS clientes
@@ -122,6 +126,7 @@ DEMO_QUERIES = [
     },
     {
         "name": "Transacciones sospechosas por cambio de ubicación",
+        "description": "Busca transacciones con bandera de ubicacion anomala o cambio de pais.",
         "cypher": """
             MATCH (t:Transaccion)-[r:DESDE_UBICACION]->(u:Ubicacion)
             WHERE r.es_anomala = true OR r.cambio_pais = true
@@ -131,6 +136,7 @@ DEMO_QUERIES = [
     },
     {
         "name": "Bancos con más cuentas asociadas",
+        "description": "Resume bancos por cantidad de cuentas conectadas.",
         "cypher": """
             MATCH (:Cuenta)-[:PERTENECE_A]->(b:Banco)
             RETURN b.nombre AS banco, count(*) AS cuentas
@@ -139,6 +145,7 @@ DEMO_QUERIES = [
     },
     {
         "name": "Promedio de monto por canal",
+        "description": "Compara monto promedio y volumen por canal transaccional.",
         "cypher": """
             MATCH (t:Transaccion)
             RETURN t.canal AS canal, avg(t.monto) AS monto_promedio, count(*) AS total

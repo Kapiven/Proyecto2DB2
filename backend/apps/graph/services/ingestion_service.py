@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+
 import csv
 import io
 import random
@@ -72,7 +73,8 @@ class IngestionService:
                 "codigo": f"BC{index:03d}",
                 "ciudad": self.faker.city(),
                 "tipo": random.choice(["Tradicional", "Digital", "Cooperativa"]),
-                "riesgo": random.randint(1, 10),
+                "riesgo": index < 30 or random.random() < 0.12,
+                "riesgo_score": random.randint(7, 10) if index < 30 else random.randint(1, 6),
                 "nivel_riesgo": random.choice(["Bajo", "Medio", "Alto"]),
             }
             for index in range(10)
@@ -84,10 +86,11 @@ class IngestionService:
                 "categoria": random.choice(["Retail", "Viajes", "Gaming", "Electrónica", "Alimentos"]),
                 "riesgo": random.randint(1, 10),
                 "ciudad": self.faker.city(),
-                "extra_labels": ["AltoRiesgo"] if random.random() < 0.2 else [],
+                "extra_labels": ["AltoRiesgo"] if index < 30 or random.random() < 0.12 else [],
             }
             for index in range(80)
         ]
+        high_risk_commerces = [commerce for commerce in comercios if commerce["riesgo"] or "AltoRiesgo" in commerce["extra_labels"]]
         ubicaciones = [
             {
                 "id": f"UBI-{index:04d}",
@@ -124,6 +127,7 @@ class IngestionService:
                 }
             )
 
+        transaction_counter = 0
         for client_index in range(total_clientes):
             client_id = f"CLI-{client_index:05d}"
             risk_score = round(random.uniform(0.1, 0.98), 2)
@@ -145,7 +149,9 @@ class IngestionService:
             )
             client_device_ids = []
             for device_index in range(random.randint(1, 2)):
-                if random.random() < 0.25:
+                if client_index < 120 and device_index == 0:
+                    device_id = shared_device_ids[client_index % len(shared_device_ids)]
+                elif random.random() < 0.25:
                     device_id = random.choice(shared_device_ids)
                 else:
                     device_id = f"DIS-{client_index:05d}-{device_index}"
@@ -223,21 +229,26 @@ class IngestionService:
 
                 last_transaction_time = now - timedelta(days=random.randint(1, 40))
                 for trx_index in range(transacciones_por_cuenta):
-                    last_transaction_time += timedelta(
-                        minutes=random.randint(1, 4) if trx_index > 0 and random.random() < 0.25 else random.randint(360, 1800)
-                    )
+                    if transaction_counter < 30 and trx_index > 0:
+                        last_transaction_time += timedelta(minutes=random.randint(1, 4))
+                    else:
+                        last_transaction_time += timedelta(
+                            minutes=random.randint(1, 4) if trx_index > 0 and random.random() < 0.25 else random.randint(360, 1800)
+                        )
                     transaction_id = f"TRX-{client_index:05d}-{account_index}-{trx_index}"
-                    commerce = random.choice(comercios)
+                    commerce = random.choice(high_risk_commerces) if transaction_counter < 50 else random.choice(comercios)
                     location = random.choice(ubicaciones)
                     device_id = random.choice(client_device_ids)
                     suspicious_reasons = []
-                    if commerce["riesgo"] >= 8:
+                    if commerce["riesgo"] is True or "AltoRiesgo" in commerce["extra_labels"]:
                         suspicious_reasons.append("comercio_alto_riesgo")
                     if device_id in shared_device_ids:
                         suspicious_reasons.append("dispositivo_compartido")
-                    if random.random() < 0.15:
+                    if transaction_counter < 30 or random.random() < 0.15:
                         suspicious_reasons.append("ubicacion_distinta")
-                    fraud_flag = len(suspicious_reasons) >= 2
+                    if transaction_counter < 50 and "patron_sospechoso" not in suspicious_reasons:
+                        suspicious_reasons.append("patron_sospechoso")
+                    fraud_flag = len(suspicious_reasons) >= 2 or transaction_counter < 50
                     monto = round(random.uniform(10, 4000), 2)
                     transacciones.append(
                         {
@@ -278,7 +289,7 @@ class IngestionService:
                         "end_id": location["id"],
                         "distancia_km": round(random.uniform(0.1, 3000), 2),
                         "es_anomala": "ubicacion_distinta" in suspicious_reasons,
-                        "cambio_pais": location["pais"] != "Guatemala",
+                        "cambio_pais": transaction_counter < 30 or location["pais"] != "Guatemala",
                     })
                     rels["EN_COMERCIO"].append({
                         "start_id": transaction_id,
@@ -333,6 +344,7 @@ class IngestionService:
                                 "prioridad": severity,
                             }
                         )
+                    transaction_counter += 1
 
         self._batch_create_nodes("Cliente", clientes, allow_extra_labels=True)
         self._batch_create_nodes("Cuenta", cuentas, allow_extra_labels=True)

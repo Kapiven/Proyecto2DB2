@@ -12,7 +12,7 @@ El grafo modelado permite identificar comportamientos sospechosos en transaccion
 Propiedades principales:
 - `id`
 - `nombre`
-- `edad`
+- `edad`  
 - `genero`
 - `riesgo`
 - `nivel_riesgo`
@@ -150,7 +150,7 @@ El motor de fraude implementa 4 reglas heurísticas que se ejecutan automáticam
 
 - **Servicio**: `backend/apps/graph/services/fraud_service.py` - Motor de detección
 - **Vistas**: `backend/apps/graph/views/fraud_views.py` - Endpoint REST
-- **Base de Datos**: Neo4j AuraDB con consultas Cypher optimizadas
+- **Base de Datos**: Neo4j AuraDB con consultas Cypher optimizadas.
 - **Respuesta**: JSON estructurado legible para usuarios no técnicos
 
 ### Estructura de Respuesta Mejorada
@@ -160,9 +160,9 @@ La respuesta incluye:
 - **Resumen**: Explicación ejecutiva legible en español
 - **Detalle de Reglas**: Para cada regla: casos detectados, definición técnica, explicación para no técnicos, nivel de riesgo
 - **Recomendaciones**: Acciones sugeridas basadas en alertas
-- **Próximos Pasos**: Flujo de escalación ordenado
+- **Próximos Pasos**: Flujo de escalación ordenado.
 
-### Ejemplo de Uso
+### Ejemplo de Uso.
 
 ```bash
 curl -X POST http://127.0.0.1:8000/api/fraud/detect/
