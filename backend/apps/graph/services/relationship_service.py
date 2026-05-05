@@ -116,35 +116,69 @@ class RelationshipService:
         return result[0] if result else None
 
     def set_properties_bulk(self, relationship_ids: list[str], properties: dict[str, Any]):
-        query = f"""
-            UNWIND $relationship_ids AS relationship_id
+        query = """
             MATCH ()-[r]->()
-            WHERE elementId(r) = toInteger(relationship_id)
+            WHERE elementId(r) IN $relationship_ids
             SET r += $properties
-            RETURN count(r) AS updated
+            RETURN elementId(r) AS relationship_id,
+                   type(r) AS relationship_type,
+                   properties(r) AS properties
         """
         result = self.repository.execute_write(query, {"relationship_ids": relationship_ids, "properties": properties})
-        return result[0] if result else {"updated": 0}
+        if not result:
+            return {
+                "updated": 0,
+                "message": "No relationships matched the provided IDs",
+            }
+        return {
+            "updated": len(result),
+            "relationships": result,
+        }
 
     def delete_properties_bulk(self, relationship_ids: list[str], property_names: list[str]):
-        remove_clause = ", ".join(f"r.`{property_name}`" for property_name in property_names)
-        query = f"""
-            UNWIND $relationship_ids AS relationship_id
+        query = """
             MATCH ()-[r]->()
-            WHERE elementId(r) = toInteger(relationship_id)
-            REMOVE {remove_clause}
-            RETURN count(r) AS updated
+            WHERE elementId(r) IN $relationship_ids
+            WITH r
+            FOREACH (key IN $property_names | SET r[key] = null)
+            RETURN elementId(r) AS relationship_id,
+                   type(r) AS relationship_type,
+                   properties(r) AS properties
         """
-        result = self.repository.execute_write(query, {"relationship_ids": relationship_ids})
-        return result[0] if result else {"updated": 0}
+        result = self.repository.execute_write(
+            query,
+            {
+                "relationship_ids": relationship_ids,
+                "property_names": property_names,
+            },
+        )
+        if not result:
+            return {
+                "updated": 0,
+                "message": "No relationships matched the provided IDs",
+                "relationships": [],
+            }
+        return {
+            "updated": len(result),
+            "relationships": result,
+        }
 
     def delete_relationships_bulk(self, relationship_ids: list[str]):
-        query = f"""
-            UNWIND $relationship_ids AS relationship_id
+        query = """
             MATCH ()-[r]->()
-            WHERE elementId(r) = toInteger(relationship_id)
+            WHERE elementId(r) IN $relationship_ids
+            WITH r, elementId(r) AS relationship_id, type(r) AS relationship_type
             DELETE r
-            RETURN count(*) AS deleted
+            RETURN relationship_id, relationship_type
         """
         result = self.repository.execute_write(query, {"relationship_ids": relationship_ids})
-        return result[0] if result else {"deleted": 0}
+        if not result:
+            return {
+                "deleted": 0,
+                "message": "No relationships matched the provided IDs",
+                "relationships": [],
+            }
+        return {
+            "deleted": len(result),
+            "relationships": result,
+        }

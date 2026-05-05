@@ -1,17 +1,19 @@
 """Vistas para CRUD de relaciones y propiedades."""
 
+import logging
+
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from ..serializers.graph_serializers import (
     BulkRelationshipDeleteSerializer,
-    BulkRelationshipPropertyRemoveSerializer,
-    BulkRelationshipPropertySerializer,
     RelationshipPropertySerializer,
     RelationshipSerializer,
 )
 from ..services.relationship_service import RelationshipService
+
+logger = logging.getLogger(__name__)
 
 
 class RelationshipListView(APIView):
@@ -68,23 +70,44 @@ class RelationshipPropertyView(APIView):
 
 class RelationshipPropertyBatchView(APIView):
     def post(self, request):
-        serializer = BulkRelationshipPropertySerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        service = RelationshipService()
-        result = service.set_properties_bulk(
-            serializer.validated_data["relationship_ids"],
-            serializer.validated_data["properties"],
+        logger.info("Batch relationship property update request.data=%s", request.data)
+        relationship_ids = request.data["relationship_ids"]
+        properties = request.data["properties"]
+        logger.info(
+            "Batch relationship property update parsed relationship_ids=%s properties=%s property_types=%s",
+            relationship_ids,
+            properties,
+            {key: type(value).__name__ for key, value in properties.items()},
         )
+        service = RelationshipService()
+        result = service.set_properties_bulk(relationship_ids, properties)
+        if result.get("updated", 0) == 0:
+            return Response(
+                {
+                    "error": True,
+                    "updated": 0,
+                    "message": result.get("message", "No relationships matched the provided IDs"),
+                    "relationships": [],
+                },
+                status=status.HTTP_404_NOT_FOUND,
+            )
         return Response(result)
 
     def delete(self, request):
-        serializer = BulkRelationshipPropertyRemoveSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        relationship_ids = request.data["relationship_ids"]
+        property_names = request.data["property_names"]
         service = RelationshipService()
-        result = service.delete_properties_bulk(
-            serializer.validated_data["relationship_ids"],
-            serializer.validated_data["property_names"],
-        )
+        result = service.delete_properties_bulk(relationship_ids, property_names)
+        if result.get("updated", 0) == 0:
+            return Response(
+                {
+                    "error": True,
+                    "updated": 0,
+                    "message": result.get("message", "No relationships matched the provided IDs"),
+                    "relationships": [],
+                },
+                status=status.HTTP_404_NOT_FOUND,
+            )
         return Response(result)
 
 
@@ -94,4 +117,14 @@ class RelationshipDeleteBatchView(APIView):
         serializer.is_valid(raise_exception=True)
         service = RelationshipService()
         result = service.delete_relationships_bulk(serializer.validated_data["relationship_ids"])
+        if result.get("deleted", 0) == 0:
+            return Response(
+                {
+                    "error": True,
+                    "deleted": 0,
+                    "message": result.get("message", "No relationships matched the provided IDs"),
+                    "relationships": [],
+                },
+                status=status.HTTP_404_NOT_FOUND,
+            )
         return Response(result)

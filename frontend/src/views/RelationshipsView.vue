@@ -172,11 +172,17 @@ async function batchUpdateProperties() {
   try {
     const relationship_ids = parseCsv(batchForm.relationshipIdsInput);
     const properties = collectProperties(batchForm.propertyRows);
-    await api.post("/relationships/properties/batch/", {
+    const payload = {
       relationship_ids,
       properties
-    });
-    batchMessage.value = "✓ Propiedades actualizadas en lote.";
+    };
+    console.log("Batch update payload:", payload);
+    const { data } = await api.post("/relationships/properties/batch/", payload);
+    if (data.updated > 0) {
+      batchMessage.value = `Propiedades actualizadas en ${data.updated} relacion(es).`;
+    } else {
+      batchMessage.value = data.message || "No relationships matched the provided IDs";
+    }
     setTimeout(() => { batchMessage.value = ""; }, 3000);
     await loadRelationships();
   } catch (error) {
