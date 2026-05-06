@@ -62,7 +62,7 @@ class BulkRelationshipDeleteSerializer(serializers.Serializer):
 
 
 class CSVUploadSerializer(serializers.Serializer):
-    entity_type = serializers.CharField()
+    entity_type = serializers.CharField(required=False, allow_blank=True)
     file = serializers.FileField()
 
 

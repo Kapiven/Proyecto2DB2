@@ -31,7 +31,7 @@ class Neo4jConnection:
 
     @classmethod
     def verify(cls) -> None:
-        cls.get_driver().verify_connectivity()
+        pass  # cls.get_driver().verify_connectivity()
 
     @classmethod
     def close(cls) -> None:

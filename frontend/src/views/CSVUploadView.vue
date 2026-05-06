@@ -2,37 +2,35 @@
   <section class="content-grid">
     <div class="section-panel">
       <p class="eyebrow">Bootstrap</p>
-      <h3>Preparar índices en Neo4j</h3>
+      <h3>Preparar indices en Neo4j</h3>
       <button class="primary-button" @click="bootstrap">Inicializar esquema</button>
     </div>
 
     <div class="section-panel">
       <p class="eyebrow">Carga por CSV</p>
-      <h3>Importación manual</h3>
+      <h3>Importacion unificada</h3>
       <div class="form-grid">
-        <select v-model="entityType">
-          <option v-for="option in options" :key="option" :value="option">{{ option }}</option>
-        </select>
-        <input type="file" @change="onFileChange" />
+        <input type="file" accept=".csv,text/csv" @change="onFileChange" />
         <button class="secondary-button" @click="uploadCSV">Subir CSV</button>
       </div>
     </div>
 
     <div class="section-panel">
-      <p class="eyebrow">Generación masiva</p>
+      <p class="eyebrow">Generacion masiva</p>
       <h3>Datos falsos conectados</h3>
       <div class="form-grid">
         <input v-model.number="generator.total_clientes" type="number" />
         <input v-model.number="generator.cuentas_por_cliente" type="number" />
         <input v-model.number="generator.transacciones_por_cuenta" type="number" />
-        <button class="primary-button" @click="generateFakeData">Generar más de 5000 nodos</button>
+        <button class="primary-button" @click="generateFakeData">Generar mas de 5000 nodos</button>
       </div>
     </div>
 
     <div class="section-panel">
       <h3>Resultado</h3>
       <p class="status-text" v-if="statusMessage">{{ statusMessage }}</p>
-      <pre>{{ statusMessage }}</pre>
+      <pre v-if="statusMessage">{{ statusMessage }}</pre>
+      <p v-else style="color: #888;">La respuesta aparecerá aquí...</p>
     </div>
   </section>
 </template>
@@ -42,32 +40,6 @@ import { reactive, ref } from "vue";
 import api from "../api/client";
 import { formatApiError } from "../utils/apiError";
 
-const options = [
-  "Cliente",
-  "Cuenta",
-  "Tarjeta",
-  "Transaccion",
-  "Dispositivo",
-  "Ubicacion",
-  "Comercio",
-  "Banco",
-  "Alerta",
-  "TIENE_CUENTA",
-  "USA_DISPOSITIVO",
-  "TIENE_TARJETA",
-  "ORIGINA",
-  "DESTINADA_A",
-  "UTILIZA_DISPOSITIVO",
-  "DESDE_UBICACION",
-  "EN_COMERCIO",
-  "UTILIZA_TARJETA",
-  "GENERA_ALERTA",
-  "PERTENECE_A",
-  "LOCALIZADO_EN",
-  "REMITE",
-  "INTERACTUA",
-];
-const entityType = ref("Cliente");
 const selectedFile = ref(null);
 const statusMessage = ref("");
 const generator = reactive({
@@ -85,16 +57,21 @@ async function bootstrap() {
   try {
     const { data } = await api.post("/schema/bootstrap/");
     statusMessage.value = JSON.stringify(data, null, 2);
+    console.log("Bootstrap result:", data);
   } catch (error) {
     statusMessage.value = formatApiError(error);
+    console.error("Bootstrap error:", error);
   }
 }
 
 async function uploadCSV() {
   statusMessage.value = "";
   try {
+    if (!selectedFile.value) {
+      statusMessage.value = "Selecciona un archivo CSV unificado antes de subirlo.";
+      return;
+    }
     const formData = new FormData();
-    formData.append("entity_type", entityType.value);
     formData.append("file", selectedFile.value);
     const { data } = await api.post("/upload/csv/", formData);
     statusMessage.value = JSON.stringify(data, null, 2);

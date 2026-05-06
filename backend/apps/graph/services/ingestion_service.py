@@ -10,8 +10,12 @@ import re
 from datetime import date, datetime, timedelta, timezone
 
 from faker import Faker
+from rest_framework.exceptions import ValidationError
 
 from .neo4j_service import Neo4jRepository
+
+NODE_LABELS = {"Cliente", "Cuenta", "Tarjeta", "Transaccion", "Dispositivo", "Ubicacion", "Comercio", "Banco", "Alerta"}
+CSV_META_FIELDS = {"record_type", "entity_type"}
 
 
 class IngestionService:
@@ -34,9 +38,56 @@ class IngestionService:
         content = file_bytes.decode("utf-8-sig")
         reader = csv.DictReader(io.StringIO(content))
         rows = list(reader)
-        if entity_type in {"Cliente", "Cuenta", "Tarjeta", "Transaccion", "Dispositivo", "Ubicacion", "Comercio", "Banco", "Alerta"}:
+        if not rows:
+            return {"processed": 0}
+        if not entity_type:
+            return self._import_unified_csv(rows)
+        if entity_type in NODE_LABELS:
             return self._import_nodes(entity_type, rows)
         return self._import_relationships(entity_type, rows)
+
+    def _import_unified_csv(self, rows: list[dict]):
+        grouped_nodes: dict[str, list[dict]] = {}
+        grouped_relationships: dict[str, list[dict]] = {}
+
+        for index, row in enumerate(rows, start=2):
+            record_type = (row.get("record_type") or "").strip().lower()
+            entity_type = (row.get("entity_type") or "").strip()
+            if record_type not in {"node", "relationship"} or not entity_type:
+                raise ValidationError(
+                    f"Fila {index}: record_type debe ser 'node' o 'relationship' y entity_type es obligatorio."
+                )
+
+            payload = {
+                key: value
+                for key, value in row.items()
+                if key not in CSV_META_FIELDS and value is not None and value.strip() != ""
+            }
+
+            if record_type == "node":
+                if entity_type not in NODE_LABELS:
+                    raise ValidationError(f"Fila {index}: '{entity_type}' no es una etiqueta de nodo valida.")
+                if not payload.get("id"):
+                    raise ValidationError(f"Fila {index}: los nodos necesitan la columna id.")
+                grouped_nodes.setdefault(entity_type, []).append(payload)
+                continue
+
+            if not payload.get("start_id") or not payload.get("end_id"):
+                raise ValidationError(f"Fila {index}: las relaciones necesitan start_id y end_id.")
+            grouped_relationships.setdefault(entity_type, []).append(payload)
+
+        summary = {"nodes": {}, "relationships": {}, "total_processed": 0}
+        for label, node_rows in grouped_nodes.items():
+            result = self._import_nodes(label, node_rows)
+            processed = result.get("processed", 0)
+            summary["nodes"][label] = processed
+            summary["total_processed"] += processed
+        for relationship_type, relationship_rows in grouped_relationships.items():
+            result = self._import_relationships(relationship_type, relationship_rows)
+            processed = result.get("processed", 0)
+            summary["relationships"][relationship_type] = processed
+            summary["total_processed"] += processed
+        return summary
 
     def _import_nodes(self, label: str, rows: list[dict]):
         normalized_rows = [self._normalize_row(row) for row in rows]

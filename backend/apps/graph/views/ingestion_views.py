@@ -24,7 +24,7 @@ class CSVUploadView(APIView):
         serializer = CSVUploadSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         file = serializer.validated_data["file"]
-        result = self.service.import_csv(serializer.validated_data["entity_type"], file.read())
+        result = self.service.import_csv(serializer.validated_data.get("entity_type", ""), file.read())
         return Response({"detail": "Archivo procesado correctamente", "result": result}, status=status.HTTP_201_CREATED)
 
 

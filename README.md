@@ -231,20 +231,22 @@ Para shortest path:
 
 ## Carga CSV
 
-La API acepta entidades de nodos y relaciones. Archivos de ejemplo incluidos en `samples/`.
+La API acepta un solo archivo CSV unificado con nodos y relaciones. El ejemplo completo esta en `samples/datos_unificados.csv`.
 
-Ejemplo para nodos:
+Columnas obligatorias:
+
+- `record_type`: `node` o `relationship`.
+- `entity_type`: etiqueta del nodo (`Cliente`, `Cuenta`, etc.) o tipo de relacion (`TIENE_CUENTA`, `ORIGINA`, etc.).
+- `id`: obligatorio para filas `node`.
+- `start_id` y `end_id`: obligatorias para filas `relationship`.
+
+Ejemplo:
 
 ```csv
-id,nombre,edad,genero,riesgo,nivel_riesgo,fecha_registro,email,telefono
-CLI-CSV-001,Ana López,31,F,0.31,Bajo,2025-02-10,ana@example.com,5555-1111
-```
-
-Ejemplo para relaciones:
-
-```csv
-start_id,end_id,fecha_asignacion,tipo_relacion,es_principal
-CLI-CSV-001,CUE-CSV-001,2024-01-10,Titular,true
+record_type,entity_type,id,nombre,edad,start_id,end_id,fecha_asignacion,tipo_relacion,es_principal
+node,Cliente,CLI-CSV-001,Ana Lopez,31,,,,,
+node,Cuenta,CUE-CSV-001,,,,,,,
+relationship,TIENE_CUENTA,,,,CLI-CSV-001,CUE-CSV-001,2024-01-10,Titular,true
 ```
 
 ## Generación de más de 5000 nodos
